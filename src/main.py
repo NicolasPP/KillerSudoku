@@ -1,5 +1,4 @@
-from puzzle_store import PuzzleStore
-
+from app import KillerSudokuApp
 
 if __name__ == "__main__":
-    store = PuzzleStore()
+    KillerSudokuApp().play()
