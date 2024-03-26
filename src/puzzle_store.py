@@ -4,7 +4,7 @@ from enum import auto
 from pathlib import Path
 from typing import Optional
 
-PUZZLE_DATA_PATH: str = "data"
+from app_config import PUZZLE_DATA_PATH
 
 type CellIndex = tuple[int, int]
 type Cage = tuple[int, list[CellIndex]]
@@ -25,14 +25,14 @@ class Puzzle:
 
 
 class PuzzleStore:
+    _store: dict[PuzzleDifficulty, list[Puzzle]] = {}
 
-    def __init__(self) -> None:
-        self._store: dict[PuzzleDifficulty, list[Puzzle]] = {}
+    @staticmethod
+    def get_puzzles(difficulty: PuzzleDifficulty) -> list[Puzzle]:
+        return PuzzleStore._store.get(difficulty, [])
 
-    def get_puzzles(self, difficulty: PuzzleDifficulty) -> Optional[list[Puzzle]]:
-        return self._store.get(difficulty)
-
-    def load(self) -> None:
+    @staticmethod
+    def load_puzzles(max_puzzles: Optional[int] = None) -> None:
         if not (difficulty_folder := Path(PUZZLE_DATA_PATH)).is_dir():
             print(f"path: {difficulty_folder.absolute()} is not a Folder")
             return
@@ -41,9 +41,10 @@ class PuzzleStore:
             if not folder.is_dir():
                 continue
 
-            self._load_folder(folder)
+            PuzzleStore.load_folder(folder, max_puzzles)
 
-    def _load_folder(self, puzzle_folder: Path) -> None:
+    @staticmethod
+    def load_folder(puzzle_folder: Path, max_puzzles: Optional[int]) -> None:
         if not (diff_val := puzzle_folder.stem[-1]).isdigit():
             return
         difficulty: PuzzleDifficulty = PuzzleDifficulty(int(diff_val))
@@ -53,10 +54,12 @@ class PuzzleStore:
             if puzzle_file.is_dir():
                 continue
 
+            if max_puzzles is not None and len(puzzles) >= max_puzzles:
+                break
+
             puzzles.append(Puzzle(difficulty, extract_puzzle_cages(puzzle_file)))
 
-        print(len(puzzles))
-        self._store[difficulty] = puzzles
+        PuzzleStore._store[difficulty] = puzzles
 
 
 def extract_puzzle_cages(puzzle_file: Path) -> list[Cage]:
