@@ -27,8 +27,8 @@ class KillerSudokuApp:
         self._delta_time: DeltaTime = DeltaTime()
         self._is_done: bool = False
 
-        PuzzleStore.load_puzzles(MAX_PUZZLES)
         pygame.init()
+        PuzzleStore.load_puzzles(MAX_PUZZLES)
         pygame.display.set_mode((APP_WIDTH, GAME_HEIGHT))
 
         self._page_manager.add_page(MAIN_MENU_PAGE, MainMenu)
