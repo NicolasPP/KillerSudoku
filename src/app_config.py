@@ -4,6 +4,8 @@ MAX_PUZZLES: int = 100
 PUZZLE_DATA_PATH: str = "data"
 FONT_SIZE: int = 40
 TITLE: str = "Killer Sudoku"
+HOVER_ALPHA: int = 100
+
 
 # Page Ids
 MAIN_MENU_PAGE: int = 1
