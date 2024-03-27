@@ -9,10 +9,9 @@ from pygame.surface import Surface
 
 
 class Region:
-
     @staticmethod
-    def partition(parent: Surface, *weights: int) -> list[Region]:
-        # Vertical Partition Only
+    def stack(parent: Surface, *weights: int) -> list[Region]:
+        # Vertical stack Only
         # Works best when weights divides parents height with no remainder
 
         regions: list[Region] = []
@@ -43,9 +42,6 @@ class Region:
     def render(self) -> None:
         self._parent.blit(self.surface, self.placement)
 
-    def is_collided(self, parent_placement: Rect) -> bool:
-        mouse_pos: Vector2 = Vector2(mouse.get_pos())
-        mouse_pos.y -= parent_placement.y
-
+    def is_collided(self, parent_placement: Vector2) -> bool:
+        mouse_pos: Vector2 = Vector2(mouse.get_pos()) - parent_placement
         return self.placement.collidepoint(*mouse_pos.xy)
-

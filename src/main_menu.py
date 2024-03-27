@@ -11,6 +11,7 @@ from pygame.event import Event
 from pygame.font import Font
 from pygame.font import SysFont
 from pygame.font import get_fonts
+from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
 
@@ -47,7 +48,7 @@ class DifficultyComponent:
 
     def _create_cards(self) -> None:
         cards: list[DifficultyCard] = []
-        for diff_index, region in enumerate(Region.partition(self._parent, 1, 1, 1, 1, 1)):
+        for diff_index, region in enumerate(Region.stack(self._parent, 1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
             theme: GameTheme = DifficultyThemes.themes[diff]
 
@@ -71,7 +72,7 @@ class DifficultyComponent:
 
     def get_collided(self) -> Optional[DifficultyCard]:
         for card in self._cards:
-            if card.region.is_collided(self._placement):
+            if card.region.is_collided(Vector2(self._placement.topleft)):
                 return card
 
         return None
@@ -81,7 +82,7 @@ class MainMenu(Page):
 
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         super().__init__(page_id, events)
-        self._title_area, self._menu_area = Region.partition(display.get_surface(), 1, 4)
+        self._title_area, self._menu_area = Region.stack(display.get_surface(), 1, 4)
         self._title_area.surface.fill(self.get_bg_color())
         self._menu_area.surface.fill(self.get_bg_color())
 
