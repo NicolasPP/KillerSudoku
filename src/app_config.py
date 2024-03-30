@@ -3,6 +3,7 @@ GAME_HEIGHT: int = 750
 MAX_PUZZLES: int = 100
 PUZZLE_DATA_PATH: str = "data"
 FONT_SIZE: int = 40
+CAGE_PAD: int = 5
 TITLE: str = "Killer Sudoku"
 HOVER_ALPHA: int = 100
 BOARD_SIZE: int = 9
