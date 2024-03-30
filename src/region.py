@@ -3,9 +3,12 @@ from __future__ import annotations
 from typing import Optional
 
 from pygame import mouse
+from pygame.color import Color
 from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
+
+from app_config import HOVER_ALPHA
 
 
 class Region:
@@ -38,6 +41,7 @@ class Region:
         self._parent: Surface = parent
         self.surface: Surface = surface
         self.placement: Rect = placement
+        self._hover: Surface = Surface(self.surface.get_size())
 
     def render(self) -> None:
         self._parent.blit(self.surface, self.placement)
@@ -45,3 +49,10 @@ class Region:
     def is_collided(self, parent_placement: Vector2) -> bool:
         mouse_pos: Vector2 = Vector2(mouse.get_pos()) - parent_placement
         return self.placement.collidepoint(*mouse_pos.xy)
+
+    def set_hover_color(self, color: Color) -> None:
+        self._hover.fill(color)
+        self._hover.set_alpha(HOVER_ALPHA)
+
+    def render_hover(self) -> None:
+        self._parent.blit(self._hover, self.placement)
