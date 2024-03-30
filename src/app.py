@@ -67,7 +67,7 @@ class KillerSudokuApp:
                 self._page_manager.set_page(KILLER_SUDOKU_PAGE)
                 page: Page = self._page_manager.get_page()
                 assert isinstance(page, KillerSudoku)
-                page.set_puzzle_info(app_event.difficulty, app_event.puzzle, app_event.theme)
+                page.process_launch_game_event(app_event)
 
             else:
                 raise Exception(f"App Event: {app_event.type.name} not recognised")

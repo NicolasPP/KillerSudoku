@@ -16,7 +16,6 @@ from pygame.rect import Rect
 from pygame.surface import Surface
 
 from app_config import FONT_SIZE
-from app_config import HOVER_ALPHA
 from app_config import TITLE
 from events import AppEvent
 from events import LaunchGameEvent
@@ -56,6 +55,7 @@ class DifficultyComponent:
             diff_name: Surface = self._font.render(diff.name, True, theme.foreground_primary)
             region.surface.blit(diff_name, diff_name.get_rect(center=region.surface.get_rect().center))
 
+            region.set_hover_color(theme.foreground_primary)
             cards.append(DifficultyCard(region, theme, diff))
 
         self._cards = cards
@@ -65,10 +65,7 @@ class DifficultyComponent:
         for card in self._cards:
             card.region.render()
             if collided == card:
-                hover: Surface = Surface(card.region.surface.get_size())
-                hover.set_alpha(HOVER_ALPHA)
-                hover.fill(card.theme.foreground_primary)
-                self._parent.blit(hover, card.region.placement)
+                card.region.render_hover()
 
     def get_collided(self) -> Optional[DifficultyCard]:
         for card in self._cards:
