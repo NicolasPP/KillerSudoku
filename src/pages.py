@@ -14,14 +14,23 @@ from events import AppEvent
 class Page(ABC):
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         self._id: int = page_id
-        self._bg_color: Color = Color(255, 255, 255, 0)
+        self._clear_color: Color = Color(255, 255, 255, 0)
         self.events: Queue[AppEvent] = events
 
-    def get_bg_color(self) -> Color:
-        return self._bg_color
+    @property
+    def clear_color(self) -> Color:
+        return self._clear_color
+
+    @clear_color.deleter
+    def clear_color(self) -> None:
+        del self._clear_color
+
+    @clear_color.setter
+    def clear_color(self, color: Color) -> None:
+        self._clear_color = color
 
     def display(self) -> None:
-        display.get_surface().fill(self._bg_color)
+        display.get_surface().fill(self._clear_color)
         self.render()
         display.flip()
 
@@ -45,7 +54,19 @@ class PageManager:
         self._current_id: Optional[int] = None
         self._events: Queue[AppEvent] = events
 
-    def set_page(self, page_id: int) -> None:
+    @property
+    def page(self) -> Optional[Page]:
+        if self._current_id is None:
+            return None
+
+        return self._pages[self._current_id]
+
+    @page.deleter
+    def page(self) -> None:
+        del self._current_id
+
+    @page.setter
+    def page(self, page_id: int) -> None:
         if page_id not in self._pages:
             return
 
@@ -53,9 +74,3 @@ class PageManager:
 
     def add_page(self, page_id: int, page: Type[Page]) -> None:
         self._pages[page_id] = page(page_id, self._events)
-
-    def get_page(self) -> Optional[Page]:
-        if self._current_id is None:
-            return None
-
-        return self._pages[self._current_id]

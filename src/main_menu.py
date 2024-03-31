@@ -36,29 +36,25 @@ class DifficultyCard(NamedTuple):
 class DifficultyComponent:
 
     def __init__(self, parent: Surface, placement: Rect) -> None:
-        # fix height offset with parents actual rect
         self._parent: Surface = parent
         self._placement: Rect = placement
-        self._font: Font = SysFont(get_fonts()[0], FONT_SIZE // 2)
+        self._cards: list[DifficultyCard] = self._create_cards()
 
-        self._cards: list[DifficultyCard] = []
-
-        self._create_cards()
-
-    def _create_cards(self) -> None:
+    def _create_cards(self) -> list[DifficultyCard]:
+        font: Font = SysFont(get_fonts()[0], FONT_SIZE // 2)
         cards: list[DifficultyCard] = []
         for diff_index, region in enumerate(Region.stack(self._parent, 1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
             theme: GameTheme = DifficultyThemes.themes[diff]
 
             region.surface.fill(theme.background_primary)
-            diff_name: Surface = self._font.render(diff.name, True, theme.foreground_primary)
+            diff_name: Surface = font.render(diff.name, True, theme.foreground_primary)
             region.surface.blit(diff_name, diff_name.get_rect(center=region.surface.get_rect().center))
 
             region.set_hover_color(theme.foreground_primary)
             cards.append(DifficultyCard(region, theme, diff))
 
-        self._cards = cards
+        return cards
 
     def render(self) -> None:
         collided: Optional[DifficultyCard] = self.get_collided()
@@ -80,8 +76,8 @@ class MainMenu(Page):
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         super().__init__(page_id, events)
         self._title_area, self._menu_area = Region.stack(display.get_surface(), 1, 4)
-        self._title_area.surface.fill(self.get_bg_color())
-        self._menu_area.surface.fill(self.get_bg_color())
+        self._title_area.surface.fill(self.clear_color)
+        self._menu_area.surface.fill(self.clear_color)
 
         self._diff_component: DifficultyComponent = DifficultyComponent(self._menu_area.surface,
                                                                         self._menu_area.placement)

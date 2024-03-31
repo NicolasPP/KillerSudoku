@@ -38,21 +38,45 @@ class Region:
         return regions
 
     def __init__(self, parent: Surface, surface: Surface, placement: Rect) -> None:
+        self._hover: Surface = Surface(surface.get_size())
         self._parent: Surface = parent
-        self.surface: Surface = surface
-        self.placement: Rect = placement
-        self._hover: Surface = Surface(self.surface.get_size())
+        self._surface: Surface = surface
+        self._placement: Rect = placement
+
+    @property
+    def surface(self) -> Surface:
+        return self._surface
+
+    @surface.setter
+    def surface(self, surf: Surface) -> None:
+        self._surface = surf
+
+    @surface.deleter
+    def surface(self) -> None:
+        del self._surface
+
+    @property
+    def placement(self) -> Rect:
+        return self._placement
+
+    @placement.setter
+    def placement(self, place: Rect) -> None:
+        self._placement = place
+
+    @placement.deleter
+    def placement(self) -> None:
+        del self._placement
 
     def render(self) -> None:
-        self._parent.blit(self.surface, self.placement)
+        self._parent.blit(self._surface, self._placement)
 
     def is_collided(self, parent_placement: Vector2) -> bool:
         mouse_pos: Vector2 = Vector2(mouse.get_pos()) - parent_placement
-        return self.placement.collidepoint(*mouse_pos.xy)
+        return self._placement.collidepoint(*mouse_pos.xy)
 
     def set_hover_color(self, color: Color) -> None:
         self._hover.fill(color)
         self._hover.set_alpha(HOVER_ALPHA)
 
     def render_hover(self) -> None:
-        self._parent.blit(self._hover, self.placement)
+        self._parent.blit(self._hover, self._placement)

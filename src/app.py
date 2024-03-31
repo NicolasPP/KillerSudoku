@@ -1,4 +1,5 @@
 from queue import Queue
+from typing import Optional
 
 import pygame
 
@@ -33,7 +34,7 @@ class KillerSudokuApp:
 
         self._page_manager.add_page(MAIN_MENU_PAGE, MainMenu)
         self._page_manager.add_page(KILLER_SUDOKU_PAGE, KillerSudoku)
-        self._page_manager.set_page(MAIN_MENU_PAGE)
+        self._page_manager.page = MAIN_MENU_PAGE
 
     def play(self) -> None:
         while not self._is_done:
@@ -41,7 +42,7 @@ class KillerSudokuApp:
             self._delta_time.set()
             self._parse_app_events()
 
-            if (page := self._page_manager.get_page()) is None:
+            if (page := self._page_manager.page) is None:
                 continue
 
             self._forward_game_events(page)
@@ -61,11 +62,11 @@ class KillerSudokuApp:
             app_event: AppEvent = self._app_events.get()
 
             if isinstance(app_event, SetPageEvent):
-                self._page_manager.set_page(app_event.page_id)
+                self._page_manager.page = app_event.page_id
 
             elif isinstance(app_event, LaunchGameEvent):
-                self._page_manager.set_page(KILLER_SUDOKU_PAGE)
-                page: Page = self._page_manager.get_page()
+                self._page_manager.page = KILLER_SUDOKU_PAGE
+                page: Optional[Page] = self._page_manager.page
                 assert isinstance(page, KillerSudoku)
                 page.process_launch_game_event(app_event)
 
