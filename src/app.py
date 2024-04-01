@@ -4,7 +4,7 @@ from typing import Optional
 import pygame
 
 from config.app_config import APP_WIDTH
-from config.app_config import GAME_HEIGHT
+from config.app_config import APP_HEIGHT
 from config.app_config import KILLER_SUDOKU_PAGE
 from config.app_config import MAIN_MENU_PAGE
 from config.app_config import MAX_PUZZLES
@@ -31,7 +31,7 @@ class KillerSudokuApp:
 
         pygame.init()
         PuzzleStore.load_puzzles(MAX_PUZZLES)
-        pygame.display.set_mode((APP_WIDTH, GAME_HEIGHT))
+        pygame.display.set_mode((APP_WIDTH, APP_HEIGHT))
         AssetManager.load_icons()
 
         self._page_manager.add_page(MAIN_MENU_PAGE, MainMenu)
