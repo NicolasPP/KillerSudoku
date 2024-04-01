@@ -15,8 +15,8 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from config.app_config import FONT_SIZE
 from config.app_config import TITLE
+from config.app_config import TITLE_FONT_SIZE
 from events import AppEvent
 from events import LaunchGameEvent
 from pages import Page
@@ -41,7 +41,7 @@ class DifficultyComponent:
         self._cards: list[DifficultyCard] = self._create_cards()
 
     def _create_cards(self) -> list[DifficultyCard]:
-        font: Font = SysFont(get_fonts()[0], FONT_SIZE // 2)
+        font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE // 2)
         cards: list[DifficultyCard] = []
         for diff_index, region in enumerate(Region.stack(self._parent, 1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
@@ -85,7 +85,7 @@ class MainMenu(Page):
         self._draw_title()
 
     def _draw_title(self) -> None:
-        font: Font = SysFont(get_fonts()[0], FONT_SIZE)
+        font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE)
         title: Surface = font.render(TITLE, True, (0, 0, 0))
         self._title_area.surface.blit(title, title.get_rect(center=self._title_area.surface.get_rect().center))
 
