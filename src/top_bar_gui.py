@@ -6,6 +6,7 @@ from pygame import MOUSEBUTTONDOWN
 from pygame.event import Event
 from pygame.math import Vector2
 from pygame.surface import Surface
+from pygame import transform
 
 from asset import AssetManager
 from config.app_config import BACK_ICON
@@ -16,15 +17,20 @@ from gui_component import GuiComponent
 from region import Region
 from themes import GameTheme
 
+TOP_BAR_PAD: int = 5
+
 
 class TopBar(GuiComponent):
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
         super().__init__(parent, theme)
-        back_surface: Surface = AssetManager.get_icon(BACK_ICON, theme.background_primary)
+        back_surface: Surface = \
+            AssetManager.get_icon(BACK_ICON, theme.background_primary,
+                                  Vector2(min(self._parent.surface.get_size())) - Vector2(TOP_BAR_PAD * 2))
+
         self._back_button: Region = Region(
             parent.surface, back_surface,
-            back_surface.get_rect(topleft=(0, 0))
+            back_surface.get_rect(topleft=(TOP_BAR_PAD, TOP_BAR_PAD))
         )
 
     @override
