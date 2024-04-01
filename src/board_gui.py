@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from enum import Enum
 from enum import auto
 from itertools import chain
@@ -6,8 +5,6 @@ from queue import Queue
 from typing import NamedTuple
 from typing import override
 
-from pygame import BUTTON_LEFT
-from pygame import MOUSEBUTTONDOWN
 from pygame import draw
 from pygame.event import Event
 from pygame.font import Font
@@ -17,110 +14,14 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from config.app_config import BACK_ICON
 from config.app_config import BOARD_SIZE
 from config.app_config import CAGE_PAD
-from config.app_config import MAIN_MENU_PAGE
-from asset import AssetManager
-from events import AppEvent
-from events import SetPageEvent
 from config.game_config import SUM_FONT_SIZE
+from events import AppEvent
+from gui_component import GuiComponent
 from killer_sudoku_state import KillerSudokuState
 from region import Region
 from themes import GameTheme
-
-
-class GuiComponent:
-
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
-        self._parent: Region = parent
-        self._theme: GameTheme = theme
-
-    @property
-    def theme(self) -> GameTheme:
-        return self._theme
-
-    @theme.deleter
-    def theme(self) -> None:
-        del self._theme
-
-    @theme.setter
-    def theme(self, new_theme: GameTheme) -> None:
-        self._theme = new_theme
-        self.update_theme()
-
-    @abstractmethod
-    def render(self) -> None:
-        pass
-
-    @abstractmethod
-    def update(self, delta_time: float) -> None:
-        pass
-
-    @abstractmethod
-    def update_theme(self) -> None:
-        pass
-
-    @abstractmethod
-    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        pass
-
-
-class TopBar(GuiComponent):
-
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
-        super().__init__(parent, theme)
-        back_surface: Surface = AssetManager.get_icon(BACK_ICON, theme.background_primary)
-        self._back_button: Region = Region(
-            parent.surface, back_surface,
-            back_surface.get_rect(topleft=(0, 0))
-        )
-
-    @override
-    def update_theme(self) -> None:
-        self._back_button.set_hover_color(self._theme.foreground_primary)
-        self._parent.surface.fill(self._theme.background_primary)
-
-    @override
-    def render(self) -> None:
-        self._back_button.render()
-        if self._back_button.is_collided(Vector2(self._parent.placement.topleft)):
-            self._back_button.render_hover()
-
-        self._parent.render()
-
-    @override
-    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        if game_event.type == MOUSEBUTTONDOWN:
-            if game_event.button == BUTTON_LEFT:
-                if self._back_button.is_collided(Vector2(self._parent.placement.topleft)):
-                    events.put(SetPageEvent(MAIN_MENU_PAGE))
-
-    @override
-    def update(self, delta_time: float) -> None:
-        pass
-
-
-class Tools(GuiComponent):
-
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
-        super().__init__(parent, theme)
-
-    @override
-    def render(self) -> None:
-        pass
-
-    @override
-    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        pass
-
-    @override
-    def update(self, delta_time: float) -> None:
-        pass
-
-    @override
-    def update_theme(self) -> None:
-        self._parent.surface.fill(self._theme.background_primary)
 
 
 class Direction(Enum):
@@ -136,7 +37,7 @@ class Neighbour(NamedTuple):
     col: int
 
 
-class BoardDisplay(GuiComponent):
+class BoardGui(GuiComponent):
 
     def __init__(self, parent: Region, theme: GameTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)

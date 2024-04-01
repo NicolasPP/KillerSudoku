@@ -5,16 +5,16 @@ from typing import override
 from pygame import display
 from pygame.event import Event
 
+from board_gui import BoardGui
 from events import AppEvent
 from events import LaunchGameEvent
-from game_gui import BoardDisplay
-from game_gui import Tools
-from game_gui import TopBar
 from killer_sudoku_state import KillerSudokuState
 from pages import Page
 from puzzle_store import PuzzleDifficulty
 from region import Region
 from themes import GameTheme
+from tools_gui import Tools
+from top_bar_gui import TopBar
 
 
 class KillerSudoku(Page):
@@ -26,7 +26,7 @@ class KillerSudoku(Page):
         top_bar, body, tools = Region.stack(display.get_surface(), 2, 19, 4)
 
         self._top_bar: TopBar = TopBar(top_bar, GameTheme.default())
-        self._board_display: BoardDisplay = BoardDisplay(body, GameTheme.default(), self._state)
+        self._board_display: BoardGui = BoardGui(body, GameTheme.default(), self._state)
         self._tools: Tools = Tools(tools, GameTheme.default())
 
     def process_launch_game_event(self, launch_game: LaunchGameEvent) -> None:
