@@ -18,7 +18,6 @@ from themes import GameTheme
 
 
 class KillerSudoku(Page):
-    @override
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         super().__init__(page_id, events)
         self._state: KillerSudokuState = KillerSudokuState()
