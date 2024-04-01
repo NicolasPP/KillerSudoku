@@ -5,8 +5,8 @@ from pygame import transform
 from pygame.color import Color
 from pygame.surface import Surface
 
-from app_config import DEFAULT_ICON_SIZE
-from app_config import ICONS
+from config.app_config import DEFAULT_ICON_SIZE
+from config.app_config import ICONS
 
 
 class AssetManager:

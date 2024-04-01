@@ -17,14 +17,14 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from app_config import BACK_ICON
-from app_config import BOARD_SIZE
-from app_config import CAGE_PAD
-from app_config import MAIN_MENU_PAGE
+from config.app_config import BACK_ICON
+from config.app_config import BOARD_SIZE
+from config.app_config import CAGE_PAD
+from config.app_config import MAIN_MENU_PAGE
 from asset import AssetManager
 from events import AppEvent
 from events import SetPageEvent
-from game_config import SUM_FONT_SIZE
+from config.game_config import SUM_FONT_SIZE
 from killer_sudoku_state import KillerSudokuState
 from region import Region
 from themes import GameTheme

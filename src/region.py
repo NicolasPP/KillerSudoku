@@ -8,7 +8,7 @@ from pygame.math import Vector2
 from pygame.rect import Rect
 from pygame.surface import Surface
 
-from app_config import HOVER_ALPHA
+from config.app_config import HOVER_ALPHA
 
 
 class Region:

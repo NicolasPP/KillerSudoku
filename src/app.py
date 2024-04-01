@@ -3,11 +3,11 @@ from typing import Optional
 
 import pygame
 
-from app_config import APP_WIDTH
-from app_config import GAME_HEIGHT
-from app_config import KILLER_SUDOKU_PAGE
-from app_config import MAIN_MENU_PAGE
-from app_config import MAX_PUZZLES
+from config.app_config import APP_WIDTH
+from config.app_config import GAME_HEIGHT
+from config.app_config import KILLER_SUDOKU_PAGE
+from config.app_config import MAIN_MENU_PAGE
+from config.app_config import MAX_PUZZLES
 from asset import AssetManager
 from delta_time import DeltaTime
 from events import AppEvent

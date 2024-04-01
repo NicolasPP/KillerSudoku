@@ -1,0 +1,1 @@
+SUM_FONT_SIZE: int = 15

@@ -4,7 +4,7 @@ from enum import auto
 from pathlib import Path
 from typing import Optional
 
-from app_config import PUZZLE_DATA_PATH
+from config.app_config import PUZZLE_DATA_PATH
 
 type CellIndex = tuple[int, int]
 type Cage = tuple[int, list[CellIndex]]
