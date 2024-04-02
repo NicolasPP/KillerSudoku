@@ -20,6 +20,9 @@ class PuzzleDifficulty(Enum):
 
 @dataclass(slots=True, frozen=True, repr=False)
 class Puzzle:
+    volume: int
+    book: int
+    id: int
     diff: PuzzleDifficulty
     cages: list[Cage]
 
@@ -57,9 +60,17 @@ class PuzzleStore:
             if max_puzzles is not None and len(puzzles) >= max_puzzles:
                 break
 
-            puzzles.append(Puzzle(difficulty, extract_puzzle_cages(puzzle_file)))
+            vol, book, puzzle_id = extract_puzzle_meta_data(puzzle_file)
+            puzzles.append(Puzzle(vol, book, puzzle_id, difficulty, extract_puzzle_cages(puzzle_file)))
 
         PuzzleStore._store[difficulty] = puzzles
+
+
+def extract_puzzle_meta_data(puzzle_file: Path) -> tuple[int, int, int]:
+    # volume, book, puzzle id
+    vol_str, book_str, puzzle_str = puzzle_file.stem.split("-")
+
+    return int(vol_str.replace("vol", "")), int(book_str.replace("book", "")), int(puzzle_str.replace("puzzle", ""))
 
 
 def extract_puzzle_cages(puzzle_file: Path) -> list[Cage]:
