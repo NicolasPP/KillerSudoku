@@ -11,7 +11,7 @@ from themes import GameTheme
 class GuiComponent:
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
-        self._parent: Region = parent
+        self.parent: Region = parent
         self._theme: GameTheme = theme
 
     @property
