@@ -210,10 +210,8 @@ class BoardGui(GuiComponent):
             cell.region.render()
 
         self._render_selected()
-
-        self._parent.surface.blit(
-            self._surface, self._surface.get_rect(center=self._parent.surface.get_rect().center))
-
+        self._parent.surface.blit(self._surface,
+                                  self._surface.get_rect(center=self._parent.surface.get_rect().center))
         self._parent.render()
 
     @override
