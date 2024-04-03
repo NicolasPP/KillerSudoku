@@ -49,17 +49,76 @@ class Cell:
 
 
 class BoardGui(GuiComponent):
+    @override
+    def render(self) -> None:
+        for cell in chain.from_iterable(self._cells):
+            cell.region.render()
+
+        if self._require_redraw:
+            self._draw_board_vals()
+            self._draw_cages()
+
+        self._render_selected()
+        self.parent.surface.blit(self._surface,
+                                 self._surface.get_rect(center=self.parent.surface.get_rect().center))
+        self.parent.render()
+
+    @override
+    def update(self, delta_time: float) -> None:
+        pass
+
+    @override
+    def update_theme(self) -> None:
+        self.parent.surface.fill(self._theme.background_primary)
+        self._surface.fill(self._theme.foreground_primary)
+        for cell in chain.from_iterable(self._cells):
+            cell.region.surface.fill(self._theme.background_primary)
+            cell.region.set_hover_color(self._theme.foreground_primary)
+
+        self._draw_cages()
+
+    @override
+    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
+        if game_event.type == MOUSEBUTTONDOWN:
+            if game_event.button == BUTTON_LEFT:
+                self._set_selected()
 
     def __init__(self, parent: Region, theme: GameTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)
         self._state: KillerSudokuState = state
         self._cells: list[list[Cell]] = []
         self._surface: Surface = self._create_board_surface()
+        # TODO Change this to optional Cell
         self._selected: Optional[tuple[int, int]] = None
+        self._require_redraw: bool = True
+
+    @property
+    def selected(self) -> Optional[tuple[int, int]]:
+        return self._selected
+
+    @selected.setter
+    def selected(self, new_selected: tuple[int, int]) -> None:
+        self._selected = new_selected
+
+    @selected.deleter
+    def selected(self) -> None:
+        del self._selected
+
+    @property
+    def require_redraw(self) -> bool:
+        return self._require_redraw
+
+    @require_redraw.setter
+    def require_redraw(self, redraw: bool) -> None:
+        self._require_redraw = redraw
+
+    @require_redraw.deleter
+    def require_redraw(self) -> None:
+        del self._require_redraw
 
     def _create_board_surface(self) -> Surface:
         cells: list[list[Cell]] = []
-        cell_size: int = (min(self._parent.surface.get_width(), self._parent.surface.get_height()) // BOARD_SIZE) - 2
+        cell_size: int = (min(self.parent.surface.get_width(), self.parent.surface.get_height()) // BOARD_SIZE) - 2
         board: Surface = Surface(Vector2((cell_size * BOARD_SIZE) + 12))
         row_padding: int = 1
         for row in range(BOARD_SIZE):
@@ -148,8 +207,8 @@ class BoardGui(GuiComponent):
                 raise Exception(f"Direction: {direction.name} not recognised")
 
     def _get_collision_offset(self) -> Vector2:
-        return Vector2(self._parent.placement.topleft) + \
-            Vector2(self._surface.get_rect(center=self._parent.surface.get_rect().center).topleft)
+        return Vector2(self.parent.placement.topleft) + \
+            Vector2(self._surface.get_rect(center=self.parent.surface.get_rect().center).topleft)
 
     def _set_selected(self) -> None:
         for cell in chain.from_iterable(self._cells):
@@ -194,32 +253,14 @@ class BoardGui(GuiComponent):
 
         selected_cell.region.render_hover()
 
-    @override
-    def update_theme(self) -> None:
-        self._parent.surface.fill(self._theme.background_primary)
-        self._surface.fill(self._theme.foreground_primary)
+    def _draw_board_vals(self) -> None:
+        font: Font = SysFont(get_fonts()[0], 20)
         for cell in chain.from_iterable(self._cells):
-            cell.region.surface.fill(self._theme.background_primary)
-            cell.region.set_hover_color(self._theme.foreground_primary)
+            val: int = self._state[cell.row][cell.col]
+            if val == 0:
+                continue
 
-        self._draw_cages()
+            dig: Surface = font.render(str(val), True, self._theme.foreground_primary,
+                                       self._theme.background_primary)
 
-    @override
-    def render(self) -> None:
-        for cell in chain.from_iterable(self._cells):
-            cell.region.render()
-
-        self._render_selected()
-        self._parent.surface.blit(self._surface,
-                                  self._surface.get_rect(center=self._parent.surface.get_rect().center))
-        self._parent.render()
-
-    @override
-    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        if game_event.type == MOUSEBUTTONDOWN:
-            if game_event.button == BUTTON_LEFT:
-                self._set_selected()
-
-    @override
-    def update(self, delta_time: float) -> None:
-        pass
+            cell.region.surface.blit(dig, dig.get_rect(center=cell.region.surface.get_rect().center))
