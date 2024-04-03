@@ -12,6 +12,18 @@ from events import AppEvent
 
 
 class Page(ABC):
+    @abstractmethod
+    def render(self) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, delta_time: float) -> None:
+        pass
+
+    @abstractmethod
+    def parse_event(self, game_event: Event) -> None:
+        pass
+
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         self._id: int = page_id
         self._clear_color: Color = Color(255, 255, 255, 0)
@@ -33,18 +45,6 @@ class Page(ABC):
         display.get_surface().fill(self._clear_color)
         self.render()
         display.flip()
-
-    @abstractmethod
-    def parse_event(self, game_event: Event) -> None:
-        pass
-
-    @abstractmethod
-    def render(self) -> None:
-        pass
-
-    @abstractmethod
-    def update(self, delta_time: float) -> None:
-        pass
 
 
 class PageManager:

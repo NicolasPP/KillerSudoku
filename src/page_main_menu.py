@@ -19,7 +19,7 @@ from config.app_config import TITLE
 from config.app_config import TITLE_FONT_SIZE
 from events import AppEvent
 from events import LaunchGameEvent
-from pages import Page
+from page import Page
 from puzzle_store import PuzzleDifficulty
 from puzzle_store import PuzzleStore
 from region import PartitionDirection

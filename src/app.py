@@ -3,20 +3,20 @@ from typing import Optional
 
 import pygame
 
-from config.app_config import APP_WIDTH
+from asset import AssetManager
 from config.app_config import APP_HEIGHT
+from config.app_config import APP_WIDTH
 from config.app_config import KILLER_SUDOKU_PAGE
 from config.app_config import MAIN_MENU_PAGE
 from config.app_config import MAX_PUZZLES
-from asset import AssetManager
 from delta_time import DeltaTime
 from events import AppEvent
 from events import LaunchGameEvent
 from events import SetPageEvent
-from killer_sudoku import KillerSudoku
-from main_menu import MainMenu
-from pages import Page
-from pages import PageManager
+from page import Page
+from page import PageManager
+from page_killer_sudoku import KillerSudoku
+from page_main_menu import MainMenu
 from puzzle_store import PuzzleStore
 
 

@@ -9,6 +9,21 @@ from themes import GameTheme
 
 
 class GuiComponent:
+    @abstractmethod
+    def render(self) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, delta_time: float) -> None:
+        pass
+
+    @abstractmethod
+    def update_theme(self) -> None:
+        pass
+
+    @abstractmethod
+    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
+        pass
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
         self.parent: Region = parent
@@ -26,19 +41,3 @@ class GuiComponent:
     def theme(self, new_theme: GameTheme) -> None:
         self._theme = new_theme
         self.update_theme()
-
-    @abstractmethod
-    def render(self) -> None:
-        pass
-
-    @abstractmethod
-    def update(self, delta_time: float) -> None:
-        pass
-
-    @abstractmethod
-    def update_theme(self) -> None:
-        pass
-
-    @abstractmethod
-    def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        pass
