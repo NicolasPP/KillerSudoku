@@ -22,7 +22,7 @@ class Digit:
     def __init__(self, val: int, region: Region, theme: GameTheme) -> None:
         self._filled: int = 0
         self._val: int = val
-        self._theme: GameTheme = theme
+        self.theme: GameTheme = theme
         self.region: Region = region
 
     @property
@@ -39,8 +39,8 @@ class Digit:
 
     def draw_val(self) -> None:
         font: Font = SysFont(get_fonts()[0], DIGIT_FONT_SIZE)
-        dig: Surface = font.render(str(self._val), True, self._theme.foreground_primary,
-                                   self._theme.background_primary)
+        dig: Surface = font.render(str(self._val), True, self.theme.foreground_primary,
+                                   self.theme.background_primary)
         self.region.surface.blit(dig, dig.get_rect(center=self.region.surface.get_rect().center))
 
 
@@ -59,6 +59,7 @@ class Digits(GuiComponent):
     def update_theme(self) -> None:
         self.parent.surface.fill(self._theme.background_primary)
         for digit in self._digits:
+            digit.theme = self._theme
             digit.region.surface.fill(self._theme.background_primary)
             digit.region.set_hover_color(self._theme.foreground_primary)
             digit.draw_val()
