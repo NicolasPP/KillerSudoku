@@ -14,14 +14,17 @@ class KillerSudokuState:
     def __getitem__(self, index: int) -> list[int]:
         return self._board_vals[index]
 
+    def clear(self) -> None:
+        self._board_vals = [[0] * 9 for _ in range(9)]
+
     @property
     def puzzle(self) -> Puzzle:
         assert self._puzzle is not None, "Puzzle has not been set"
         return self._puzzle
 
     @puzzle.setter
-    def puzzle(self, puzzle: Puzzle) -> None:
-        self._puzzle = puzzle
+    def puzzle(self, new_puzzle: Puzzle) -> None:
+        self._puzzle = new_puzzle
 
     @puzzle.deleter
     def puzzle(self) -> None:
