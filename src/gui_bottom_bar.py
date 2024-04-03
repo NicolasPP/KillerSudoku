@@ -6,13 +6,13 @@ from pygame.math import Vector2
 
 from events import AppEvent
 from gui_component import GuiComponent
-from gui_digits import DigitsGui
+from gui_digits import Digits
 from region import PartitionDirection
 from region import Region
 from themes import GameTheme
 
 
-class Tools(GuiComponent):
+class BottomBar(GuiComponent):
 
     @override
     def render(self) -> None:
@@ -34,7 +34,6 @@ class Tools(GuiComponent):
     @override
     def update_theme(self) -> None:
         self._tools_region.surface.fill(self._theme.background_primary)
-        self._input_region.surface.fill(self._theme.background_primary)
         self.parent.surface.fill(self._theme.background_primary)
 
     @override
@@ -43,13 +42,13 @@ class Tools(GuiComponent):
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
         super().__init__(parent, theme)
-        self._tools_region, self._input_region = \
+        self._tools_region, input_region = \
             Region.partition(parent.surface, PartitionDirection.VERTICAL, 1, 2)
 
-        self._digits: DigitsGui = DigitsGui(self._input_region, self._theme)
+        self._digits: Digits = Digits(input_region, self._theme)
 
     @property
-    def digits(self) -> DigitsGui:
+    def digits(self) -> Digits:
         return self._digits
 
     @digits.deleter
@@ -57,7 +56,7 @@ class Tools(GuiComponent):
         del self._digits
 
     @digits.setter
-    def digits(self, new_digit: DigitsGui) -> None:
+    def digits(self, new_digit: Digits) -> None:
         self._digits = new_digit
 
     def get_digit_collision_offset(self) -> Vector2:

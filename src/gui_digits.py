@@ -44,7 +44,7 @@ class Digit:
         self.region.surface.blit(dig, dig.get_rect(center=self.region.surface.get_rect().center))
 
 
-class DigitsGui(GuiComponent):
+class Digits(GuiComponent):
 
     @override
     def render(self) -> None:
@@ -57,6 +57,7 @@ class DigitsGui(GuiComponent):
 
     @override
     def update_theme(self) -> None:
+        self.parent.surface.fill(self._theme.background_primary)
         for digit in self._digits:
             digit.region.surface.fill(self._theme.background_primary)
             digit.region.set_hover_color(self._theme.foreground_primary)

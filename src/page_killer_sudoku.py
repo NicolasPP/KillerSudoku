@@ -10,7 +10,7 @@ from pygame.event import Event
 from events import AppEvent
 from events import LaunchGameEvent
 from gui_board import BoardGui
-from gui_tools import Tools
+from gui_bottom_bar import BottomBar
 from gui_top_bar import TopBar
 from killer_sudoku_state import KillerSudokuState
 from page import Page
@@ -27,7 +27,7 @@ class KillerSudoku(Page):
         self._board_display.parse_event(game_event, self.events)
         if game_event.type == MOUSEBUTTONDOWN:
             if game_event.button == BUTTON_LEFT:
-                if (dig := self._tools.digits.get_collided(self._tools.get_digit_collision_offset())) is None:
+                if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_digit_collision_offset())) is None:
                     return
 
                 if self._board_display.selected is None:
@@ -39,7 +39,7 @@ class KillerSudoku(Page):
     def render(self) -> None:
         self._top_bar.render()
         self._board_display.render()
-        self._tools.render()
+        self._bottom_bar.render()
 
     @override
     def update(self, delta_time: float) -> None:
@@ -54,7 +54,7 @@ class KillerSudoku(Page):
 
         self._top_bar: TopBar = TopBar(top_bar, GameTheme.default())
         self._board_display: BoardGui = BoardGui(body, GameTheme.default(), self._state)
-        self._tools: Tools = Tools(tools, GameTheme.default())
+        self._bottom_bar: BottomBar = BottomBar(tools, GameTheme.default())
 
     def process_launch_game_event(self, launch_game: LaunchGameEvent) -> None:
         self._state.clear()
@@ -62,6 +62,6 @@ class KillerSudoku(Page):
         self._difficulty = launch_game.difficulty
 
         self._top_bar.theme = launch_game.theme
-        self._tools.theme = launch_game.theme
-        self._tools.digits.theme = launch_game.theme
+        self._bottom_bar.theme = launch_game.theme
+        self._bottom_bar.digits.theme = launch_game.theme
         self._board_display.theme = launch_game.theme
