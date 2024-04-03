@@ -93,9 +93,9 @@ class MainMenu(Page):
         self._title_area.surface.blit(title, title.get_rect(center=self._title_area.surface.get_rect().center))
 
     @override
-    def parse_event(self, event: Event) -> None:
-        if event.type == MOUSEBUTTONDOWN:
-            if event.button == BUTTON_LEFT:
+    def parse_event(self, game_event: Event) -> None:
+        if game_event.type == MOUSEBUTTONDOWN:
+            if game_event.button == BUTTON_LEFT:
                 if (diff := self._diff_component.get_collided()) is None:
                     return
 
