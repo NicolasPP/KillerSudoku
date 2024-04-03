@@ -117,24 +117,25 @@ class BoardGui(GuiComponent):
 
     def _create_board_surface(self) -> Surface:
         cells: list[list[Cell]] = []
-        cell_size: int = (min(self.parent.surface.get_width(), self.parent.surface.get_height()) // BOARD_SIZE) - 2
-        board: Surface = Surface(Vector2((cell_size * BOARD_SIZE) + 12))
-        row_padding: int = 1
+        pad: int = 1
+        cell_size: int = (min(self.parent.surface.get_width(), self.parent.surface.get_height()) // BOARD_SIZE) - (pad * 2)
+        board: Surface = Surface(Vector2((cell_size * BOARD_SIZE) + (14 * pad)))
+        row_padding: int = pad
         for row in range(BOARD_SIZE):
             region_row: list[Cell] = []
-            col_padding: int = 1
+            col_padding: int = pad
             for col in range(BOARD_SIZE):
-                placement: Rect = Rect((col * (cell_size + 1)) + col_padding, (row * (cell_size + 1)) + row_padding,
+                placement: Rect = Rect((col * (cell_size + pad)) + col_padding, (row * (cell_size + pad)) + row_padding,
                                        cell_size, cell_size)
                 surface: Surface = Surface(placement.size)
 
                 if (col + 1) % 3 == 0:
-                    col_padding += 1
+                    col_padding += pad * 2
 
                 region_row.append(Cell(Region(board, surface, placement), row, col))
 
             if (row + 1) % 3 == 0:
-                row_padding += 1
+                row_padding += pad * 2
 
             cells.append(region_row)
 
