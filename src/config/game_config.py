@@ -1,1 +1,3 @@
 SUM_FONT_SIZE: int = 15
+DIGIT_FONT_SIZE: int = 30
+TOP_BAR_PAD: int = 5
