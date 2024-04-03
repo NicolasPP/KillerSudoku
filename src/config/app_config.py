@@ -1,4 +1,4 @@
-APP_WIDTH: int = 600
+APP_WIDTH: int = 576
 APP_HEIGHT: int = 750
 MAX_PUZZLES: int = 100
 TITLE_FONT_SIZE: int = 40
