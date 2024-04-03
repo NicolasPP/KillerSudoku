@@ -40,6 +40,7 @@ class KillerSudoku(Page):
     @override
     def parse_event(self, game_event: Event) -> None:
         self._top_bar.parse_event(game_event, self.events)
+        self._board_display.parse_event(game_event, self.events)
 
     @override
     def render(self) -> None:
