@@ -88,17 +88,16 @@ class BoardGui(GuiComponent):
         self._state: KillerSudokuState = state
         self._cells: list[list[Cell]] = []
         self._surface: Surface = self._create_board_surface()
-        # TODO Change this to optional Cell
-        self._selected: Optional[tuple[int, int]] = None
+        self._selected: Optional[Cell] = None
         self._require_redraw: bool = True
 
     @property
-    def selected(self) -> Optional[tuple[int, int]]:
+    def selected(self) -> Optional[Cell]:
         return self._selected
 
     @selected.setter
-    def selected(self, new_selected: tuple[int, int]) -> None:
-        self._selected = new_selected
+    def selected(self, cell: Cell) -> None:
+        self._selected = cell
 
     @selected.deleter
     def selected(self) -> None:
@@ -213,18 +212,17 @@ class BoardGui(GuiComponent):
     def _set_selected(self) -> None:
         for cell in chain.from_iterable(self._cells):
             if cell.region.is_collided(self._get_collision_offset()):
-                self._selected = cell.row, cell.col
+                self._selected = cell
 
     def _render_selected(self) -> None:
         if self._selected is None:
             return
 
-        selected_row, selected_col = self._selected
-        row_start: int = (selected_row // 3) * 3
-        col_start: int = (selected_col // 3) * 3
+        row_start: int = (self._selected.row // 3) * 3
+        col_start: int = (self._selected.col // 3) * 3
 
         cells_to_render: list[Cell] = []
-        selected_cell: Cell = self._cells[selected_row][selected_col]
+        selected_cell: Cell = self._cells[self._selected.row][self._selected.col]
 
         def require_render(cell_to_render: Cell) -> None:
             if cell_to_render in cells_to_render:
@@ -234,14 +232,14 @@ class BoardGui(GuiComponent):
         for cells_row in self._cells:
             for cell in cells_row:
 
-                if cell.row == selected_row:
+                if cell.row == self._selected.row:
                     require_render(cell)
 
-                elif cell.col == selected_col:
+                elif cell.col == self._selected.col:
                     require_render(cell)
 
                 val: int = self._state[cell.row][cell.col]
-                if val != 0 and val == self._state[selected_row][selected_col]:
+                if val != 0 and val == self._state[self._selected.row][self._selected.col]:
                     require_render(cell)
 
         for row in range(row_start, row_start + 3):

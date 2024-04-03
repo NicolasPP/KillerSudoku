@@ -33,8 +33,7 @@ class KillerSudoku(Page):
                 if self._board_display.selected is None:
                     return
 
-                row, col = self._board_display.selected
-                self._state[row][col] = dig.val
+                self._state[self._board_display.selected.row][self._board_display.selected.col] = dig.val
 
     @override
     def render(self) -> None:
