@@ -33,6 +33,7 @@ class TopBar(GuiComponent):
 
     @override
     def update_theme(self) -> None:
+        self._back_button = self._create_back_button()
         self._back_button.set_hover_color(self._theme.foreground_primary)
         self.parent.surface.fill(self._theme.background_primary)
 
@@ -45,11 +46,11 @@ class TopBar(GuiComponent):
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
         super().__init__(parent, theme)
+        self._back_button: Region = self._create_back_button()
+
+    def _create_back_button(self) -> Region:
         back_surface: Surface = \
-            AssetManager.get_icon(BACK_ICON, theme.background_primary,
+            AssetManager.get_icon(BACK_ICON, self._theme.foreground_primary, self._theme.background_primary,
                                   Vector2(min(self.parent.surface.get_size())) - Vector2(TOP_BAR_PAD * 2))
 
-        self._back_button: Region = Region(
-            parent.surface, back_surface,
-            back_surface.get_rect(topleft=(TOP_BAR_PAD, TOP_BAR_PAD))
-        )
+        return Region(self.parent.surface, back_surface, back_surface.get_rect(topleft=(TOP_BAR_PAD, TOP_BAR_PAD)))
