@@ -1,13 +1,14 @@
+from itertools import product
 from pathlib import Path
+from typing import Optional
 
 from pygame import image
 from pygame import transform
 from pygame.color import Color
+from pygame.math import Vector2
 from pygame.surface import Surface
 
 from config.app_config import ICONS
-from typing import Optional
-from pygame.math import Vector2
 
 
 class AssetManager:
@@ -23,11 +24,16 @@ class AssetManager:
             AssetManager.icons[file.stem] = image.load(file.absolute())
 
     @staticmethod
-    def get_icon(icon: str, background_color: Color, size: Optional[Vector2] = None) -> Surface:
+    def get_icon(icon: str, foreground: Color, background_color: Color, size: Optional[Vector2] = None) -> Surface:
         assert (icon_surface := AssetManager.icons[icon]) is not None
 
         if size is not None:
             icon_surface = transform.scale(icon_surface, size)
+
+        original_color: Color = Color(0, 0, 0)
+        for index in product(range(icon_surface.get_width()), range(icon_surface.get_height())):
+            if icon_surface.get_at(index) == original_color:
+                icon_surface.set_at(index, foreground)
 
         background: Surface = Surface(icon_surface.get_size())
         background.fill(background_color)
