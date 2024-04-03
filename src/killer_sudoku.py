@@ -12,6 +12,7 @@ from killer_sudoku_state import KillerSudokuState
 from pages import Page
 from puzzle_store import PuzzleDifficulty
 from region import Region
+from region import PartitionDirection
 from themes import GameTheme
 from tools_gui import Tools
 from top_bar_gui import TopBar
@@ -23,7 +24,7 @@ class KillerSudoku(Page):
         self._state: KillerSudokuState = KillerSudokuState()
         self._difficulty: Optional[PuzzleDifficulty] = None
 
-        top_bar, body, tools = Region.stack(display.get_surface(), 2, 19, 4)
+        top_bar, body, tools = Region.partition(display.get_surface(), PartitionDirection.VERTICAL,  2, 19, 4)
 
         self._top_bar: TopBar = TopBar(top_bar, GameTheme.default())
         self._board_display: BoardGui = BoardGui(body, GameTheme.default(), self._state)

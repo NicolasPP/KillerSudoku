@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from enum import Enum
+from enum import auto
 from typing import Optional
 
 from pygame import mouse
@@ -11,27 +13,45 @@ from pygame.surface import Surface
 from config.app_config import HOVER_ALPHA
 
 
+class PartitionDirection(Enum):
+    HORIZONTAL = auto()
+    VERTICAL = auto()
+
+
 class Region:
     @staticmethod
-    def stack(parent: Surface, *weights: int) -> list[Region]:
+    def partition(parent: Surface, direction: PartitionDirection, *weights: int) -> list[Region]:
         # Vertical stack Only
         # Works best when weights divides parents height with no remainder
-
-        regions: list[Region] = []
-
         if (total_weight := sum(weights)) < len(weights):
             raise Exception("weights cannot be 0 or negative")
 
-        unit: int = parent.get_height() // total_weight
+        def get_direction_dimension() -> int:
+            return parent.get_height() if direction is PartitionDirection.VERTICAL else parent.get_width()
+
+        def get_region_dimension(unit_length: int) -> tuple[int, int]:
+            if direction is PartitionDirection.VERTICAL:
+                return parent.get_width(), unit_length
+
+            return unit_length, parent.get_height()
+
+        def get_placement_rect(region_surface: Surface) -> Rect:
+            if prev_placement is None:
+                return region_surface.get_rect()
+
+            top_left_destination: tuple[int, int] = prev_placement.bottomleft
+            if direction is PartitionDirection.HORIZONTAL:
+                top_left_destination = prev_placement.topright
+
+            return region_surface.get_rect(topleft=top_left_destination)
+
+        regions: list[Region] = []
+        unit: int = get_direction_dimension() // total_weight
         prev_placement: Optional[Rect] = None
         for weight in weights:
-            height: int = unit * weight
-            surface: Surface = Surface((parent.get_width(), height))
-            placement: Rect = surface.get_rect()
-
-            if prev_placement is not None:
-                placement = surface.get_rect(topleft=prev_placement.bottomleft)
-
+            length: int = unit * weight
+            surface: Surface = Surface(get_region_dimension(length))
+            placement: Rect = get_placement_rect(surface)
             regions.append(Region(parent, surface, placement))
             prev_placement = placement
 

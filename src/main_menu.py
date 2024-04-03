@@ -22,6 +22,7 @@ from events import LaunchGameEvent
 from pages import Page
 from puzzle_store import PuzzleDifficulty
 from puzzle_store import PuzzleStore
+from region import PartitionDirection
 from region import Region
 from themes import DifficultyThemes
 from themes import GameTheme
@@ -43,7 +44,8 @@ class DifficultyComponent:
     def _create_cards(self) -> list[DifficultyCard]:
         font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE // 2)
         cards: list[DifficultyCard] = []
-        for diff_index, region in enumerate(Region.stack(self._parent, 1, 1, 1, 1, 1)):
+        for diff_index, region in enumerate(Region.partition(self._parent, PartitionDirection.VERTICAL,
+                                                             1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
             theme: GameTheme = DifficultyThemes.themes[diff]
 
@@ -75,7 +77,8 @@ class MainMenu(Page):
 
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         super().__init__(page_id, events)
-        self._title_area, self._menu_area = Region.stack(display.get_surface(), 1, 4)
+        self._title_area, self._menu_area = Region.partition(display.get_surface(), PartitionDirection.VERTICAL,
+                                                             1, 4)
         self._title_area.surface.fill(self.clear_color)
         self._menu_area.surface.fill(self.clear_color)
 
