@@ -259,77 +259,79 @@ class BoardGui(GuiComponent):
         is_down_present: bool = Direction.DOWN in excluded_directions
         start = end = Vector2(0)
 
-        for direction in {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT} - excluded_directions:
-            if direction is Direction.UP:
-                if not is_left_present and not is_right_present:
-                    start = Vector2(CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
+        if not is_up_present:
+            if not is_left_present and not is_right_present:
+                start = Vector2(CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
 
-                elif is_left_present and is_right_present:
-                    start = Vector2(0, CAGE_PAD)
-                    end = Vector2(cell_surface.get_width(), CAGE_PAD)
+            elif is_left_present and is_right_present:
+                start = Vector2(0, CAGE_PAD)
+                end = Vector2(cell_surface.get_width(), CAGE_PAD)
 
-                elif is_right_present:
-                    start = Vector2(CAGE_PAD)
-                    end = Vector2(cell_surface.get_width(), CAGE_PAD)
+            elif is_right_present:
+                start = Vector2(CAGE_PAD)
+                end = Vector2(cell_surface.get_width(), CAGE_PAD)
 
-                elif is_left_present:
-                    start = Vector2(0, CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
+            elif is_left_present:
+                start = Vector2(0, CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
 
-            elif direction is Direction.DOWN:
-                if not is_left_present and not is_right_present:
-                    start = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+            draw.line(cell_surface, self._theme.foreground_primary, start, end)
 
-                elif is_left_present and is_right_present:
-                    start = Vector2(0, cell_surface.get_height() - CAGE_PAD)
-                    end = Vector2(cell_surface.get_width(), cell_surface.get_height() - CAGE_PAD)
+        if not is_down_present:
+            if not is_left_present and not is_right_present:
+                start = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-                elif is_right_present:
-                    start = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
-                    end = Vector2(cell_surface.get_width(), cell_surface.get_height() - CAGE_PAD)
+            elif is_left_present and is_right_present:
+                start = Vector2(0, cell_surface.get_height() - CAGE_PAD)
+                end = Vector2(cell_surface.get_width(), cell_surface.get_height() - CAGE_PAD)
 
-                elif is_left_present:
-                    start = Vector2(0, cell_surface.get_height() - CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+            elif is_right_present:
+                start = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+                end = Vector2(cell_surface.get_width(), cell_surface.get_height() - CAGE_PAD)
 
-            elif direction is Direction.LEFT:
-                if not is_down_present and not is_up_present:
-                    start = Vector2(CAGE_PAD)
-                    end = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+            elif is_left_present:
+                start = Vector2(0, cell_surface.get_height() - CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-                elif is_down_present and is_up_present:
-                    start = Vector2(CAGE_PAD, 0)
-                    end = Vector2(CAGE_PAD, cell_surface.get_height())
+            draw.line(cell_surface, self._theme.foreground_primary, start, end)
 
-                elif is_down_present:
-                    start = Vector2(CAGE_PAD)
-                    end = Vector2(CAGE_PAD, cell_surface.get_height())
+        if not is_left_present:
+            if not is_down_present and not is_up_present:
+                start = Vector2(CAGE_PAD)
+                end = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-                elif is_up_present:
-                    start = Vector2(CAGE_PAD, 0)
-                    end = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+            elif is_down_present and is_up_present:
+                start = Vector2(CAGE_PAD, 0)
+                end = Vector2(CAGE_PAD, cell_surface.get_height())
 
-            elif direction is Direction.RIGHT:
-                if not is_down_present and not is_up_present:
-                    start = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+            elif is_down_present:
+                start = Vector2(CAGE_PAD)
+                end = Vector2(CAGE_PAD, cell_surface.get_height())
 
-                elif is_down_present and is_up_present:
-                    start = Vector2(cell_surface.get_width() - CAGE_PAD, 0)
-                    end = Vector2(cell_surface.get_height() - CAGE_PAD, cell_surface.get_width())
+            elif is_up_present:
+                start = Vector2(CAGE_PAD, 0)
+                end = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-                elif is_down_present:
-                    start = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height())
+            draw.line(cell_surface, self._theme.foreground_primary, start, end)
 
-                elif is_up_present:
-                    start = Vector2(cell_surface.get_width() - CAGE_PAD, 0)
-                    end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
+        if not is_right_present:
+            if not is_down_present and not is_up_present:
+                start = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-            else:
-                raise Exception(f"Direction: {direction.name} not recognised")
+            elif is_down_present and is_up_present:
+                start = Vector2(cell_surface.get_width() - CAGE_PAD, 0)
+                end = Vector2(cell_surface.get_height() - CAGE_PAD, cell_surface.get_width())
+
+            elif is_down_present:
+                start = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height())
+
+            elif is_up_present:
+                start = Vector2(cell_surface.get_width() - CAGE_PAD, 0)
+                end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
             draw.line(cell_surface, self._theme.foreground_primary, start, end)
 
