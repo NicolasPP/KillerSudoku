@@ -1,8 +1,7 @@
-APP_WIDTH: int = 576
-APP_HEIGHT: int = 750
+APP_WIDTH: int = 756
+APP_HEIGHT: int = 850
 MAX_PUZZLES: int = 100
 TITLE_FONT_SIZE: int = 40
-CAGE_PAD: int = 5
 HOVER_ALPHA: int = 70
 BOARD_SIZE: int = 9
 TITLE: str = "Killer Sudoku"
