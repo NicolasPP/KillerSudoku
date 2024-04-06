@@ -34,19 +34,19 @@ class Direction(Enum):
     LEFT = auto()
     RIGHT = auto()
 
-    def get(self) -> tuple[int, int]:
+    def get(self) -> Vector2:
         direction: Direction = Direction[self.name]
         if direction is Direction.UP:
-            return -1, 0
+            return Vector2(-1, 0)
 
         elif direction is Direction.DOWN:
-            return 1, 0
+            return Vector2(1, 0)
 
         elif direction is Direction.LEFT:
-            return 0, -1
+            return Vector2(0, -1)
 
         elif direction is Direction.RIGHT:
-            return 0, 1
+            return Vector2(0, 1)
 
         else:
             raise Exception()
@@ -165,7 +165,7 @@ class BoardGui(GuiComponent):
             return neighbours
 
         for direction in [Direction.DOWN, Direction.UP, Direction.RIGHT, Direction.LEFT]:
-            index: Vector2 = Vector2(row, col) + Vector2(direction.get())
+            index: Vector2 = Vector2(row, col) + direction.get()
 
             if index.x >= len(self._cells) or index.x < 0:
                 continue
@@ -181,7 +181,7 @@ class BoardGui(GuiComponent):
         neighbours: set[Direction] = self._get_neighbours(row, col)
         present: set[Direction] = set()
         for neighbour in neighbours:
-            index: Vector2 = Vector2(row, col) + Vector2(neighbour.get())
+            index: Vector2 = Vector2(row, col) + neighbour.get()
             if (index.x, index.y) in present_cells:
                 present.add(neighbour)
 
@@ -351,13 +351,13 @@ class BoardGui(GuiComponent):
         row_start: int = (self._selected.row // 3) * 3
         col_start: int = (self._selected.col // 3) * 3
 
-        cells_to_render: list[Cell] = []
+        cells_to_render: set[Cell] = set()
         selected_cell: Cell = self._cells[self._selected.row][self._selected.col]
 
         def require_render(cell_to_render: Cell) -> None:
             if cell_to_render in cells_to_render:
                 return
-            cells_to_render.append(cell_to_render)
+            cells_to_render.add(cell_to_render)
 
         for cells_row in self._cells:
             for cell in cells_row:
@@ -384,8 +384,7 @@ class BoardGui(GuiComponent):
     def _draw_board_vals(self) -> None:
         font: Font = SysFont(get_fonts()[0], 20)
         for cell in chain.from_iterable(self._cells):
-            val: int = self._state[cell.row][cell.col]
-            if val == 0:
+            if (val := self._state[cell.row][cell.col]) == 0:
                 continue
 
             dig: Surface = font.render(str(val), True, self._theme.foreground_primary,
