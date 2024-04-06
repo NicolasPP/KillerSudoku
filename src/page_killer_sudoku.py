@@ -34,6 +34,7 @@ class KillerSudoku(Page):
                     return
 
                 self._state[self._board_display.selected.row][self._board_display.selected.col] = dig.val
+                self._board_display.require_redraw = True
 
     @override
     def render(self) -> None:
@@ -64,4 +65,5 @@ class KillerSudoku(Page):
         self._top_bar.theme = launch_game.theme
         self._bottom_bar.theme = launch_game.theme
         self._bottom_bar.digits.theme = launch_game.theme
+        self._bottom_bar.tools.theme = launch_game.theme
         self._board_display.theme = launch_game.theme
