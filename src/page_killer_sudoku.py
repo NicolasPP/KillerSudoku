@@ -3,7 +3,7 @@ from typing import Optional
 from typing import override
 
 from pygame import BUTTON_LEFT
-from pygame import MOUSEBUTTONDOWN
+from pygame import MOUSEBUTTONUP
 from pygame import display
 from pygame.event import Event
 
@@ -25,13 +25,13 @@ from themes import GameTheme
 class KillerSudoku(Page):
     @override
     def parse_event(self, game_event: Event) -> None:
-        self._board_display.parse_event(game_event, self.events)
-
-        if game_event.type == MOUSEBUTTONDOWN:
+        if game_event.type == MOUSEBUTTONUP:
             if game_event.button == BUTTON_LEFT:
                 self._handle_digit_press()
                 self._handle_eraser_press()
                 self._handle_back_press()
+
+        self._board_display.parse_event(game_event, self.events)
 
     @override
     def render(self) -> None:

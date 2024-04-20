@@ -5,7 +5,7 @@ from typing import Optional
 from typing import override
 
 from pygame import BUTTON_LEFT
-from pygame import MOUSEBUTTONDOWN
+from pygame import MOUSEBUTTONUP
 from pygame import display
 from pygame.event import Event
 from pygame.font import Font
@@ -94,7 +94,7 @@ class MainMenu(Page):
 
     @override
     def parse_event(self, game_event: Event) -> None:
-        if game_event.type == MOUSEBUTTONDOWN:
+        if game_event.type == MOUSEBUTTONUP:
             if game_event.button == BUTTON_LEFT:
                 if (diff := self._diff_component.get_collided()) is None:
                     return

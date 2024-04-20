@@ -7,7 +7,7 @@ from typing import Optional
 from typing import override
 
 from pygame import BUTTON_LEFT
-from pygame import MOUSEBUTTONDOWN
+from pygame import MOUSEBUTTONUP
 from pygame import draw
 from pygame.event import Event
 from pygame.font import Font
@@ -91,7 +91,7 @@ class BoardGui(GuiComponent):
 
     @override
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        if game_event.type == MOUSEBUTTONDOWN:
+        if game_event.type == MOUSEBUTTONUP:
             if game_event.button == BUTTON_LEFT:
                 self._set_selected()
 
@@ -347,36 +347,13 @@ class BoardGui(GuiComponent):
         if self._selected is None:
             return
 
-        row_start: int = (self._selected.row // 3) * 3
-        col_start: int = (self._selected.col // 3) * 3
-
-        cells_to_render: set[Cell] = set()
         selected_cell: Cell = self._cells[self._selected.row][self._selected.col]
-
-        def require_render(cell_to_render: Cell) -> None:
-            if cell_to_render in cells_to_render:
-                return
-            cells_to_render.add(cell_to_render)
 
         for cells_row in self._cells:
             for cell in cells_row:
-
-                if cell.row == self._selected.row:
-                    require_render(cell)
-
-                elif cell.col == self._selected.col:
-                    require_render(cell)
-
                 val: int = self._state[cell.row][cell.col]
                 if val != 0 and val == self._state[self._selected.row][self._selected.col]:
-                    require_render(cell)
-
-        for row in range(row_start, row_start + 3):
-            for col in range(col_start, col_start + 3):
-                require_render(self._cells[row][col])
-
-        for cell in cells_to_render:
-            cell.region.render_hover()
+                    cell.region.render_hover()
 
         selected_cell.region.render_hover()
 
