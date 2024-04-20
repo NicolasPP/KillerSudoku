@@ -24,8 +24,8 @@ class AssetManager:
             AssetManager.icons[file.stem] = image.load(file.absolute())
 
     @staticmethod
-    def get_icon(icon: str, foreground: Color, background_color: Color, size: Optional[Vector2] = None) -> Surface:
-        assert (icon_surface := AssetManager.icons[icon]) is not None
+    def get_icon(icon_name: str, foreground: Color, background: Color, size: Optional[Vector2] = None) -> Surface:
+        assert (icon_surface := AssetManager.icons[icon_name]) is not None
 
         if size is not None:
             icon_surface = transform.scale(icon_surface, size)
@@ -35,7 +35,7 @@ class AssetManager:
             if icon_surface.get_at(index) == original_color:
                 icon_surface.set_at(index, foreground)
 
-        background: Surface = Surface(icon_surface.get_size())
-        background.fill(background_color)
-        background.blit(icon_surface, (0, 0))
-        return background
+        icon: Surface = Surface(icon_surface.get_size())
+        icon.fill(background)
+        icon.blit(icon_surface, (0, 0))
+        return icon
