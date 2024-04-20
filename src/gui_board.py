@@ -67,6 +67,7 @@ class BoardGui(GuiComponent):
             cell.region.render()
 
         if self._require_redraw:
+            self._clear_cells()
             self._draw_board_vals()
             self._draw_cages()
             self._require_redraw = False
@@ -87,8 +88,6 @@ class BoardGui(GuiComponent):
         for cell in chain.from_iterable(self._cells):
             cell.region.surface.fill(self._theme.background_primary)
             cell.region.set_hover_color(self._theme.foreground_primary)
-
-        self._draw_cages()
 
     @override
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
@@ -380,6 +379,10 @@ class BoardGui(GuiComponent):
             cell.region.render_hover()
 
         selected_cell.region.render_hover()
+
+    def _clear_cells(self) -> None:
+        for cell in chain.from_iterable(self._cells):
+            cell.region.surface.fill(self._theme.background_primary)
 
     def _draw_board_vals(self) -> None:
         font: Font = SysFont(get_fonts()[0], 20)
