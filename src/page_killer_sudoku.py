@@ -86,4 +86,5 @@ class KillerSudoku(Page):
             return
 
         self.events.put(SetPageEvent(MAIN_MENU_PAGE))
+        self._board_display.selection.clear()
         self._board_display.require_redraw = True
