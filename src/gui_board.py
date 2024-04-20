@@ -7,8 +7,12 @@ from typing import Optional
 from typing import override
 
 from pygame import BUTTON_LEFT
+from pygame import K_LCTRL
+from pygame import key
+from pygame import MOUSEBUTTONDOWN
 from pygame import MOUSEBUTTONUP
 from pygame import draw
+from pygame import mouse
 from pygame.event import Event
 from pygame.font import Font
 from pygame.font import SysFont
@@ -60,6 +64,28 @@ class Cell:
         self.col: int = col
 
 
+class Selection:
+
+    def __init__(self) -> None:
+        self.selected: set[Cell] = set()
+        self.selecting: bool = False
+
+    def add_cell(self, cell: Cell) -> None:
+        if cell in self.selected:
+            return
+
+        self.selected.add(cell)
+
+    def get_single_selection(self) -> Optional[Cell]:
+        if len(self.selected) != 1:
+            return None
+
+        return list(self.selected)[0]
+
+    def clear(self) -> None:
+        self.selected = set()
+
+
 class BoardGui(GuiComponent):
     @override
     def render(self) -> None:
@@ -72,14 +98,21 @@ class BoardGui(GuiComponent):
             self._draw_cages()
             self._require_redraw = False
 
-        self._render_selected()
+        for cell in self.selection.selected:
+            cell.region.render_hover()
+
         self.parent.surface.blit(self._surface,
                                  self._surface.get_rect(center=self.parent.surface.get_rect().center))
         self.parent.render()
 
     @override
     def update(self, delta_time: float) -> None:
-        pass
+        if not self.selection.selecting:
+            return
+
+        for cell in chain.from_iterable(self._cells):
+            if cell.region.is_collided(self._get_collision_offset()):
+                self.selection.add_cell(cell)
 
     @override
     def update_theme(self) -> None:
@@ -91,29 +124,28 @@ class BoardGui(GuiComponent):
 
     @override
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
+        if not self.parent.placement.collidepoint(mouse.get_pos()):
+            self.selection.selecting = False
+            return
+
         if game_event.type == MOUSEBUTTONUP:
             if game_event.button == BUTTON_LEFT:
-                self._set_selected()
+                self.selection.selecting = False
+
+        elif game_event.type == MOUSEBUTTONDOWN:
+            if game_event.button == BUTTON_LEFT:
+                if len(self.selection.selected) > 0 and not key.get_pressed()[K_LCTRL]:
+                    self.selection.clear()
+
+                self.selection.selecting = True
 
     def __init__(self, parent: Region, theme: GameTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)
         self._state: KillerSudokuState = state
         self._cells: list[list[Cell]] = []
         self._surface: Surface = self._create_board_surface()
-        self._selected: Optional[Cell] = None
         self._require_redraw: bool = True
-
-    @property
-    def selected(self) -> Optional[Cell]:
-        return self._selected
-
-    @selected.setter
-    def selected(self, cell: Cell) -> None:
-        self._selected = cell
-
-    @selected.deleter
-    def selected(self) -> None:
-        del self._selected
+        self.selection: Selection = Selection()
 
     @property
     def require_redraw(self) -> bool:
@@ -337,25 +369,6 @@ class BoardGui(GuiComponent):
     def _get_collision_offset(self) -> Vector2:
         return Vector2(self.parent.placement.topleft) + \
             Vector2(self._surface.get_rect(center=self.parent.surface.get_rect().center).topleft)
-
-    def _set_selected(self) -> None:
-        for cell in chain.from_iterable(self._cells):
-            if cell.region.is_collided(self._get_collision_offset()):
-                self._selected = cell
-
-    def _render_selected(self) -> None:
-        if self._selected is None:
-            return
-
-        selected_cell: Cell = self._cells[self._selected.row][self._selected.col]
-
-        for cells_row in self._cells:
-            for cell in cells_row:
-                val: int = self._state[cell.row][cell.col]
-                if val != 0 and val == self._state[self._selected.row][self._selected.col]:
-                    cell.region.render_hover()
-
-        selected_cell.region.render_hover()
 
     def _clear_cells(self) -> None:
         for cell in chain.from_iterable(self._cells):

@@ -41,7 +41,7 @@ class KillerSudoku(Page):
 
     @override
     def update(self, delta_time: float) -> None:
-        pass
+        self._board_display.update(delta_time)
 
     def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
         super().__init__(page_id, events)
@@ -67,20 +67,18 @@ class KillerSudoku(Page):
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:
             return
 
-        if self._board_display.selected is None:
-            return
+        for cell in self._board_display.selection.selected:
+            self._state[cell.row][cell.col] = dig.val
 
-        self._state[self._board_display.selected.row][self._board_display.selected.col] = dig.val
         self._board_display.require_redraw = True
 
     def _handle_eraser_press(self) -> None:
         if not self._bottom_bar.tools.eraser.is_collided(self._bottom_bar.get_collision_offset()):
             return
 
-        if self._board_display.selected is None:
-            return
+        for cell in self._board_display.selection.selected:
+            self._state[cell.row][cell.col] = 0
 
-        self._state[self._board_display.selected.row][self._board_display.selected.col] = 0
         self._board_display.require_redraw = True
 
     def _handle_back_press(self) -> None:
