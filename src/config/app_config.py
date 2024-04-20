@@ -12,6 +12,7 @@ ICONS: str = r"assets\icons"
 BACK_ICON: str = "arrow-small-left"
 ERASER_ICON: str = "eraser"
 PENCIL_ICON: str = "pencil"
+SWITCH_ICON: str = "switch"
 
 # Page Ids
 MAIN_MENU_PAGE: int = 1

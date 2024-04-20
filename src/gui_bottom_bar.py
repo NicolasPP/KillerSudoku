@@ -1,6 +1,8 @@
 from queue import Queue
 from typing import override
 
+from pygame import BUTTON_LEFT
+from pygame import MOUSEBUTTONUP
 from pygame.event import Event
 from pygame.math import Vector2
 
@@ -33,7 +35,10 @@ class BottomBar(GuiComponent):
 
     @override
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
-        pass
+        if game_event.type == MOUSEBUTTONUP:
+            if game_event.button == BUTTON_LEFT:
+                if self.tools.pencil.is_collided(self.get_collision_offset()):
+                    self.tools.pencil.toggle()
 
     def __init__(self, parent: Region, theme: GameTheme) -> None:
         super().__init__(parent, theme)
