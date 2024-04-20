@@ -47,9 +47,10 @@ class KillerSudokuApp:
             if (page := self._page_manager.page) is None:
                 continue
 
-            self._forward_game_events(page)
             page.update(self._delta_time.get())
             page.display()
+
+            self._forward_game_events(page)
 
     def _forward_game_events(self, page: Page) -> None:
         for event in pygame.event.get():
