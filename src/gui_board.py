@@ -8,10 +8,10 @@ from typing import override
 
 from pygame import BUTTON_LEFT
 from pygame import K_LCTRL
-from pygame import key
 from pygame import MOUSEBUTTONDOWN
 from pygame import MOUSEBUTTONUP
 from pygame import draw
+from pygame import key
 from pygame import mouse
 from pygame.event import Event
 from pygame.font import Font
@@ -84,6 +84,28 @@ class Selection:
 
     def clear(self) -> None:
         self.selected = set()
+
+    def get_selection_sum(self, state: KillerSudokuState) -> int:
+        selection_sum: int = 0
+
+        if len(self.selected) == 0:
+            return selection_sum
+
+        selected_index: set[tuple[int, int]] = {(cell.row, cell.col) for cell in self.selected}
+        for val, cage in state.puzzle.cages:
+            if len(selected_index.intersection(cage)) == len(cage):
+                selection_sum += val
+                selected_index -= set(cage)
+
+        for row, col in selected_index:
+            cell_val: int = state[row][col]
+            if cell_val == 0:
+                return 0
+
+            else:
+                selection_sum += cell_val
+
+        return selection_sum
 
 
 class BoardGui(GuiComponent):
