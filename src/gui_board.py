@@ -58,8 +58,8 @@ class Direction(Enum):
 
 class Cell:
 
-    def __init__(self, region: Region, row: int, col: int) -> None:
-        self.region: Region = region
+    def __init__(self, cell_region: Region, row: int, col: int) -> None:
+        self.region: Region = cell_region
         self.row: int = row
         self.col: int = col
 

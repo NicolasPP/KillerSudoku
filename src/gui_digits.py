@@ -14,10 +14,10 @@ from themes import GameTheme
 
 class Digit:
 
-    def __init__(self, val: int, region: Region) -> None:
+    def __init__(self, val: int, digit_region: Region) -> None:
         self._filled: int = 0
         self._val: int = val
-        self.region: Region = region
+        self.region: Region = digit_region
 
     @property
     def val(self) -> int:
