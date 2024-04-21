@@ -5,6 +5,7 @@ from gui_pencil import Pencil
 from region import PartitionDirection
 from region import Region
 from themes import GameTheme
+from gui_undo import Undo
 
 
 class Tools:
@@ -15,21 +16,26 @@ class Tools:
 
         self.pencil: Pencil = Pencil(pencil_region, theme)
         self.eraser: Eraser = Eraser(erase_region, theme)
+        self.undo: Undo = Undo(undo_region, theme)
 
     def render(self, offset: Vector2, theme: GameTheme) -> None:
+        # eraser
         self.eraser.render()
-
         if self.eraser.is_collided(offset):
             self.eraser.hover(theme)
-
         self.eraser.parent.render()
 
+        # pencil
         self.pencil.render()
-
         if self.pencil.is_collided(offset):
             self.pencil.render_hover(theme)
-
         self.pencil.parent.render()
+
+        # undo
+        self.undo.render()
+        if self.undo.is_collided(offset):
+            self.undo.render_hover(theme)
+        self.undo.parent.render()
 
         self.parent.render()
 
@@ -37,3 +43,4 @@ class Tools:
         self.parent.surface.fill(theme.foreground_primary)
         self.eraser.redraw(theme)
         self.pencil.redraw(theme)
+        self.undo.redraw(theme)

@@ -14,7 +14,9 @@ from events import SetPageEvent
 from gui_board import BoardGui
 from gui_bottom_bar import BottomBar
 from gui_top_bar import TopBar
+from killer_sudoku_state import Delete
 from killer_sudoku_state import KillerSudokuState
+from killer_sudoku_state import Place
 from page import Page
 from puzzle_store import PuzzleDifficulty
 from region import PartitionDirection
@@ -30,6 +32,8 @@ class KillerSudoku(Page):
                 self._handle_digit_press()
                 self._handle_eraser_press()
                 self._handle_back_press()
+                self._handle_undo_press()
+                self._board_display.require_redraw = True
 
         self._bottom_bar.parse_event(game_event, self.events)
         self._board_display.parse_event(game_event, self.events)
@@ -68,29 +72,21 @@ class KillerSudoku(Page):
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:
             return
 
-        for cell in self._board_display.selection.selected:
-
-            if self._bottom_bar.tools.pencil.is_on:
-                self._state.add_pencil_mark(cell.row, cell.col, dig.val)
-
-            else:
-                self._state[cell.row][cell.col] = dig.val
-
-        self._board_display.require_redraw = True
+        cells: list[tuple[int, int]] = [(cell.row, cell.col) for cell in self._board_display.selection.selected]
+        self._state.process_move(Place(cells, self._state, dig.val, self._bottom_bar.tools.pencil.is_on))
 
     def _handle_eraser_press(self) -> None:
         if not self._bottom_bar.tools.eraser.is_collided(self._bottom_bar.get_collision_offset()):
             return
 
-        for cell in self._board_display.selection.selected:
-            cell_val: int = self._state[cell.row][cell.col]
-            if cell_val != 0:
-                self._state[cell.row][cell.col] = 0
+        cells: list[tuple[int, int]] = [(cell.row, cell.col) for cell in self._board_display.selection.selected]
+        self._state.process_move(Delete(cells, self._state))
 
-            else:
-                self._state.get_pencil_markings(cell.row, cell.col).clear()
+    def _handle_undo_press(self) -> None:
+        if not self._bottom_bar.tools.undo.is_collided(self._bottom_bar.get_collision_offset()):
+            return
 
-        self._board_display.require_redraw = True
+        self._state.undo_move()
 
     def _handle_back_press(self) -> None:
         if not self._top_bar.is_back_collided():
@@ -98,4 +94,3 @@ class KillerSudoku(Page):
 
         self.events.put(SetPageEvent(MAIN_MENU_PAGE))
         self._board_display.selection.clear()
-        self._board_display.require_redraw = True
