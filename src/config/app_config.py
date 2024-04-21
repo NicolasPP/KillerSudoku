@@ -13,6 +13,7 @@ BACK_ICON: str = "arrow-small-left"
 ERASER_ICON: str = "eraser"
 PENCIL_ICON: str = "pencil"
 SWITCH_ICON: str = "switch"
+UNDO_ICON: str = "undo-alt"
 
 # Page Ids
 MAIN_MENU_PAGE: int = 1
