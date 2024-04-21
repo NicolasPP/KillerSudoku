@@ -72,6 +72,7 @@ class Pencil:
         self.parent.surface.blit(status, status.get_rect(bottomleft=pencil_pos.midbottom))
 
     def is_collided(self, offset: Vector2) -> bool:
+        # TODO: check collision with on/off surface
         pos: Vector2 = Vector2(self._get_pencil_pos().topleft) + Vector2(self.parent.placement.topleft)
         mouse_pos: Vector2 = Vector2(mouse.get_pos())
         return self._icons.pencil.get_rect().collidepoint(mouse_pos - pos - offset)
