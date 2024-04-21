@@ -1,5 +1,5 @@
 SUM_FONT_SIZE: int = 15
 DIGIT_FONT_SIZE: int = 30
 TOP_BAR_PAD: int = 5
-CAGE_PAD: int = 15
+CAGE_PAD: int = 8
 CELL_PAD: int = 1
