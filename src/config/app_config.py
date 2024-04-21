@@ -22,3 +22,4 @@ KILLER_SUDOKU_PAGE: int = 2
 # Themes
 LIGHT_THEME: str = "light_theme"
 DARK_THEME: str = "dark_theme"
+DARK2_THEME: str = "dark2_theme"
