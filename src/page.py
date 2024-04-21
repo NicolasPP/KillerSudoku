@@ -5,10 +5,10 @@ from typing import Optional
 from typing import Type
 
 from pygame import display
-from pygame.color import Color
 from pygame.event import Event
 
 from events import AppEvent
+from themes import AppTheme
 
 
 class Page(ABC):
@@ -24,25 +24,17 @@ class Page(ABC):
     def parse_event(self, game_event: Event) -> None:
         pass
 
-    def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
+    @abstractmethod
+    def update_theme(self, theme: AppTheme) -> None:
+        pass
+
+    def __init__(self, page_id: int, events: Queue[AppEvent], theme: AppTheme) -> None:
         self._id: int = page_id
-        self._clear_color: Color = Color(255, 255, 255, 0)
+        self._theme: AppTheme = theme
         self.events: Queue[AppEvent] = events
 
-    @property
-    def clear_color(self) -> Color:
-        return self._clear_color
-
-    @clear_color.deleter
-    def clear_color(self) -> None:
-        del self._clear_color
-
-    @clear_color.setter
-    def clear_color(self, color: Color) -> None:
-        self._clear_color = color
-
     def display(self) -> None:
-        display.get_surface().fill(self._clear_color)
+        display.get_surface().fill(self._theme.background_primary)
         self.render()
         display.flip()
 
@@ -72,5 +64,9 @@ class PageManager:
 
         self._current_id = page_id
 
-    def add_page(self, page_id: int, page: Type[Page]) -> None:
-        self._pages[page_id] = page(page_id, self._events)
+    def update_pages_theme(self, theme: AppTheme) -> None:
+        for page in self._pages.values():
+            page.update_theme(theme)
+
+    def add_page(self, page_id: int, page: Type[Page], theme: AppTheme) -> None:
+        self._pages[page_id] = page(page_id, self._events, theme)

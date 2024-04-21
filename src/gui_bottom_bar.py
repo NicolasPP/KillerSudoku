@@ -12,7 +12,7 @@ from gui_digits import Digits
 from gui_tools import Tools
 from region import PartitionDirection
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class BottomBar(GuiComponent):
@@ -40,7 +40,7 @@ class BottomBar(GuiComponent):
                 if self.tools.pencil.is_collided(self.get_collision_offset()):
                     self.tools.pencil.toggle()
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         super().__init__(parent, theme)
         tools_region, input_region = \
             Region.partition(parent.surface, PartitionDirection.VERTICAL, 1, 2)

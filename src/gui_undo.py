@@ -6,29 +6,29 @@ from asset import AssetManager
 from config.app_config import HOVER_ALPHA
 from config.app_config import UNDO_ICON
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class Undo:
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         self.parent: Region = parent
         self._icon: Surface = self._get_icon(theme)
 
-    def redraw(self, theme: GameTheme) -> None:
+    def redraw(self, theme: AppTheme) -> None:
         self.parent.surface.fill(theme.background_primary)
         self._icon = self._get_icon(theme)
 
     def render(self) -> None:
         self.parent.surface.blit(self._icon, self._get_pos())
 
-    def render_hover(self, theme: GameTheme) -> None:
+    def render_hover(self, theme: AppTheme) -> None:
         hover: Surface = Surface(self._icon.get_size())
         hover.fill(theme.foreground_primary)
         hover.set_alpha(HOVER_ALPHA)
         self.parent.surface.blit(hover, self._get_pos())
 
-    def _get_icon(self, theme: GameTheme) -> Surface:
+    def _get_icon(self, theme: AppTheme) -> Surface:
         return AssetManager.get_icon(UNDO_ICON, theme.foreground_primary, theme.background_primary,
                                      Vector2(min(self.parent.surface.get_size())))
 

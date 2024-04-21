@@ -4,18 +4,15 @@ from typing import NamedTuple
 
 from pygame.color import Color
 
-from puzzle_store import PuzzleDifficulty
+from config.app_config import DARK_THEME
+from config.app_config import LIGHT_THEME
 
 
-class GameTheme(NamedTuple):
+class AppTheme(NamedTuple):
+
     @staticmethod
-    def default() -> GameTheme:
-        return GameTheme(
-            Color(0, 0, 0),
-            Color(0, 0, 0),
-            Color(255, 255, 255),
-            Color(255, 255, 255),
-        )
+    def default() -> AppTheme:
+        return Themes.themes[DARK_THEME]
 
     foreground_primary: Color
     foreground_secondary: Color
@@ -23,37 +20,17 @@ class GameTheme(NamedTuple):
     background_secondary: Color
 
 
-class DifficultyThemes:
-
-    themes: dict[PuzzleDifficulty, GameTheme] = {
-        PuzzleDifficulty.EASY: GameTheme(
+class Themes:
+    themes: dict[str, AppTheme] = {
+        DARK_THEME: AppTheme(
             Color(255, 255, 255),
             Color(255, 255, 255),
             Color(0, 0, 0),
             Color(0, 0, 0),
         ),
-        PuzzleDifficulty.NORMAL: GameTheme(
+        LIGHT_THEME: AppTheme(
             Color(0, 0, 0),
             Color(0, 0, 0),
             Color(255, 255, 255),
             Color(255, 255, 255),
-        ),
-        PuzzleDifficulty.HARD: GameTheme(
-            Color(0, 0, 0),
-            Color(0, 0, 0),
-            Color(255, 255, 255),
-            Color(255, 255, 255),
-        ),
-        PuzzleDifficulty.EXPERT: GameTheme(
-            Color(0, 0, 0),
-            Color(0, 0, 0),
-            Color(255, 255, 255),
-            Color(255, 255, 255),
-        ),
-        PuzzleDifficulty.MASTER: GameTheme(
-            Color(0, 0, 0),
-            Color(0, 0, 0),
-            Color(255, 255, 255),
-            Color(255, 255, 255),
-        )
-    }
+        )}

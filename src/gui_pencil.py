@@ -11,7 +11,7 @@ from config.app_config import PENCIL_ICON
 from config.app_config import SWITCH_ICON
 from region import PartitionDirection
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class PencilIcons(NamedTuple):
@@ -22,12 +22,12 @@ class PencilIcons(NamedTuple):
 
 class Pencil:
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         self.parent: Region = parent
         self.is_on: bool = False
         self._icons: PencilIcons = self._get_icons(theme)
 
-    def _get_icons(self, theme: GameTheme) -> PencilIcons:
+    def _get_icons(self, theme: AppTheme) -> PencilIcons:
         pencil_size: Vector2 = Vector2(min(self.parent.surface.get_size()))
         pencil: Surface = AssetManager.get_icon(PENCIL_ICON, theme.foreground_primary, theme.background_primary,
                                                 pencil_size)
@@ -45,11 +45,11 @@ class Pencil:
     def toggle(self) -> None:
         self.is_on = not self.is_on
 
-    def redraw(self, theme: GameTheme) -> None:
+    def redraw(self, theme: AppTheme) -> None:
         self.parent.surface.fill(theme.background_primary)
         self._icons = self._get_icons(theme)
 
-    def render_hover(self, theme: GameTheme) -> None:
+    def render_hover(self, theme: AppTheme) -> None:
         hover_pencil: Surface = Surface(self._icons.pencil.get_size())
         status_size: Vector2 = Vector2(self._get_status().get_size())
         status_size.x //= 2

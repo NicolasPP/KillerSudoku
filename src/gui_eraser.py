@@ -6,24 +6,24 @@ from asset import AssetManager
 from config.app_config import ERASER_ICON
 from config.app_config import HOVER_ALPHA
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class Eraser:
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         self.parent: Region = parent
         self._icon: Surface = self._get_icon(theme)
 
     def render(self) -> None:
         self.parent.surface.blit(self._icon, self._icon.get_rect(center=self.parent.surface.get_rect().center))
 
-    def redraw(self, theme: GameTheme) -> None:
+    def redraw(self, theme: AppTheme) -> None:
         self.parent.surface.fill(theme.background_primary)
         self.parent.set_hover_color(theme.foreground_primary)
         self._icon = self._get_icon(theme)
 
-    def _get_icon(self, theme: GameTheme) -> Surface:
+    def _get_icon(self, theme: AppTheme) -> Surface:
         return AssetManager.get_icon(ERASER_ICON, theme.foreground_primary, theme.background_primary,
                                      Vector2(min(self.parent.surface.get_size())))
 
@@ -32,7 +32,7 @@ class Eraser:
                              Vector2(self._icon.get_rect(center=self.parent.surface.get_rect().center).topleft)
         return self._icon.get_rect().collidepoint(mouse_pos)
 
-    def hover(self, theme: GameTheme) -> None:
+    def hover(self, theme: AppTheme) -> None:
         hover: Surface = Surface(self._icon.get_size())
         hover.fill(theme.foreground_primary)
         hover.set_alpha(HOVER_ALPHA)

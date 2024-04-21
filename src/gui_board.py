@@ -29,7 +29,7 @@ from events import AppEvent
 from gui_component import GuiComponent
 from killer_sudoku_state import KillerSudokuState
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class Direction(Enum):
@@ -110,14 +110,14 @@ class Selection:
 
 class PencilMarksDisplay:
 
-    def __init__(self, cell_size: Rect, theme: GameTheme, font_name: str) -> None:
+    def __init__(self, cell_size: Rect, theme: AppTheme, font_name: str) -> None:
         self.surface: Surface = Surface(Vector2(cell_size.size) - Vector2((CAGE_PAD + 2) * 2))
         self.regions: list[Region] = self._create_regions(theme)
 
         self._font_name: str = font_name
         self._font_size: int = self._calculate_font_size()
 
-    def redraw(self, theme: GameTheme) -> None:
+    def redraw(self, theme: AppTheme) -> None:
         self.regions = self._create_regions(theme)
         self._font_size = self._calculate_font_size()
 
@@ -138,7 +138,7 @@ class PencilMarksDisplay:
 
             font_size += 1
 
-    def _create_regions(self, theme: GameTheme) -> list[Region]:
+    def _create_regions(self, theme: AppTheme) -> list[Region]:
         regions: list[Region] = []
         prev_placement: Optional[Rect] = None
         first_placement: Optional[Rect] = None
@@ -219,7 +219,7 @@ class BoardGui(GuiComponent):
 
                 self.selection.selecting = True
 
-    def __init__(self, parent: Region, theme: GameTheme, state: KillerSudokuState) -> None:
+    def __init__(self, parent: Region, theme: AppTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)
         self._state: KillerSudokuState = state
         self._cells: list[list[Cell]] = []

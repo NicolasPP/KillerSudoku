@@ -18,3 +18,7 @@ UNDO_ICON: str = "undo-alt"
 # Page Ids
 MAIN_MENU_PAGE: int = 1
 KILLER_SUDOKU_PAGE: int = 2
+
+# Themes
+LIGHT_THEME: str = "light_theme"
+DARK_THEME: str = "dark_theme"

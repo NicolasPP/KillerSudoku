@@ -24,37 +24,34 @@ from puzzle_store import PuzzleDifficulty
 from puzzle_store import PuzzleStore
 from region import PartitionDirection
 from region import Region
-from themes import DifficultyThemes
-from themes import GameTheme
+from themes import AppTheme
 
 
 class DifficultyCard(NamedTuple):
     region: Region
-    theme: GameTheme
     difficulty: PuzzleDifficulty
 
 
 class DifficultyComponent:
 
-    def __init__(self, parent: Surface, placement: Rect) -> None:
+    def __init__(self, parent: Surface, placement: Rect, theme: AppTheme) -> None:
         self._parent: Surface = parent
         self._placement: Rect = placement
-        self._cards: list[DifficultyCard] = self._create_cards()
+        self._cards: list[DifficultyCard] = self._create_cards(theme)
 
-    def _create_cards(self) -> list[DifficultyCard]:
+    def _create_cards(self, theme: AppTheme) -> list[DifficultyCard]:
         font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE // 2)
         cards: list[DifficultyCard] = []
         for diff_index, region in enumerate(Region.partition(self._parent, PartitionDirection.VERTICAL,
                                                              1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
-            theme: GameTheme = DifficultyThemes.themes[diff]
 
             region.surface.fill(theme.background_primary)
             diff_name: Surface = font.render(diff.name, True, theme.foreground_primary)
             region.surface.blit(diff_name, diff_name.get_rect(center=region.surface.get_rect().center))
 
             region.set_hover_color(theme.foreground_primary)
-            cards.append(DifficultyCard(region, theme, diff))
+            cards.append(DifficultyCard(region, diff))
 
         return cards
 
@@ -64,6 +61,9 @@ class DifficultyComponent:
             card.region.render()
             if collided == card:
                 card.region.render_hover()
+
+    def redraw(self, theme: AppTheme) -> None:
+        self._cards = self._create_cards(theme)
 
     def get_collided(self) -> Optional[DifficultyCard]:
         for card in self._cards:
@@ -75,23 +75,6 @@ class DifficultyComponent:
 
 class MainMenu(Page):
 
-    def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
-        super().__init__(page_id, events)
-        self._title_area, self._menu_area = Region.partition(display.get_surface(), PartitionDirection.VERTICAL,
-                                                             1, 4)
-        self._title_area.surface.fill(self.clear_color)
-        self._menu_area.surface.fill(self.clear_color)
-
-        self._diff_component: DifficultyComponent = DifficultyComponent(self._menu_area.surface,
-                                                                        self._menu_area.placement)
-
-        self._draw_title()
-
-    def _draw_title(self) -> None:
-        font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE)
-        title: Surface = font.render(TITLE, True, (0, 0, 0))
-        self._title_area.surface.blit(title, title.get_rect(center=self._title_area.surface.get_rect().center))
-
     @override
     def parse_event(self, game_event: Event) -> None:
         if game_event.type == MOUSEBUTTONUP:
@@ -99,9 +82,9 @@ class MainMenu(Page):
                 if (diff := self._diff_component.get_collided()) is None:
                     return
 
-                self.events.put(LaunchGameEvent(diff.difficulty,
-                                                choice(PuzzleStore.get_puzzles(diff.difficulty)),
-                                                diff.theme))
+                self.events.put(
+                    LaunchGameEvent(diff.difficulty, choice(PuzzleStore.get_puzzles(diff.difficulty)))
+                )
 
     @override
     def render(self) -> None:
@@ -112,3 +95,27 @@ class MainMenu(Page):
     @override
     def update(self, delta_time: float) -> None:
         pass
+
+    @override
+    def update_theme(self, theme: AppTheme) -> None:
+        self._theme = theme
+        self._diff_component.redraw(self._theme)
+        self._draw_title()
+
+    def __init__(self, page_id: int, events: Queue[AppEvent], theme: AppTheme) -> None:
+        super().__init__(page_id, events, theme)
+        self._title_area, self._menu_area = Region.partition(display.get_surface(), PartitionDirection.VERTICAL,
+                                                             1, 4)
+        self._title_area.surface.fill(self._theme.background_primary)
+        self._menu_area.surface.fill(self._theme.background_primary)
+
+        self._diff_component: DifficultyComponent = DifficultyComponent(self._menu_area.surface,
+                                                                        self._menu_area.placement,
+                                                                        self._theme)
+
+        self._draw_title()
+
+    def _draw_title(self) -> None:
+        font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE)
+        title: Surface = font.render(TITLE, True, self._theme.foreground_primary)
+        self._title_area.surface.blit(title, title.get_rect(center=self._title_area.surface.get_rect().center))

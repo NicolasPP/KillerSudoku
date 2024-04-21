@@ -11,7 +11,7 @@ from config.game_config import TOP_BAR_PAD
 from events import AppEvent
 from gui_component import GuiComponent
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class TopBar(GuiComponent):
@@ -37,7 +37,7 @@ class TopBar(GuiComponent):
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
         pass
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         super().__init__(parent, theme)
         self._back_button: Region = self._create_back_button()
 

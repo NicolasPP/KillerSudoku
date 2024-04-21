@@ -21,7 +21,7 @@ from page import Page
 from puzzle_store import PuzzleDifficulty
 from region import PartitionDirection
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class KillerSudoku(Page):
@@ -48,25 +48,28 @@ class KillerSudoku(Page):
     def update(self, delta_time: float) -> None:
         self._board_display.update(delta_time)
 
-    def __init__(self, page_id: int, events: Queue[AppEvent]) -> None:
-        super().__init__(page_id, events)
+    @override
+    def update_theme(self, theme: AppTheme) -> None:
+        self._theme = theme
+        self._top_bar.theme = theme
+        self._bottom_bar.theme = theme
+        self._board_display.theme = theme
+
+    def __init__(self, page_id: int, events: Queue[AppEvent], theme: AppTheme) -> None:
+        super().__init__(page_id, events, theme)
         self._state: KillerSudokuState = KillerSudokuState()
         self._difficulty: Optional[PuzzleDifficulty] = None
 
         top_bar, body, tools = Region.partition(display.get_surface(), PartitionDirection.VERTICAL, 2, 19, 4)
 
-        self._top_bar: TopBar = TopBar(top_bar, GameTheme.default())
-        self._board_display: BoardGui = BoardGui(body, GameTheme.default(), self._state)
-        self._bottom_bar: BottomBar = BottomBar(tools, GameTheme.default())
+        self._top_bar: TopBar = TopBar(top_bar, self._theme)
+        self._board_display: BoardGui = BoardGui(body, self._theme, self._state)
+        self._bottom_bar: BottomBar = BottomBar(tools, self._theme)
 
     def process_launch_game_event(self, launch_game: LaunchGameEvent) -> None:
         self._state.clear()
         self._state.puzzle = launch_game.puzzle
         self._difficulty = launch_game.difficulty
-
-        self._top_bar.theme = launch_game.theme
-        self._bottom_bar.theme = launch_game.theme
-        self._board_display.theme = launch_game.theme
 
     def _handle_digit_press(self) -> None:
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:

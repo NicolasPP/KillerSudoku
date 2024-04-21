@@ -9,7 +9,7 @@ from pygame.surface import Surface
 from config.game_config import DIGIT_FONT_SIZE
 from region import PartitionDirection
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class Digit:
@@ -31,7 +31,7 @@ class Digit:
     def val(self) -> None:
         del self._val
 
-    def draw_val(self, theme: GameTheme) -> None:
+    def draw_val(self, theme: AppTheme) -> None:
         font: Font = SysFont(get_fonts()[0], DIGIT_FONT_SIZE)
         dig: Surface = font.render(str(self._val), True, theme.foreground_primary,
                                    theme.background_primary)
@@ -61,7 +61,7 @@ class Digits:
 
         self.parent.render()
 
-    def redraw(self, theme: GameTheme) -> None:
+    def redraw(self, theme: AppTheme) -> None:
         self.parent.surface.fill(theme.background_primary)
         for digit in self.digits:
             digit.theme = theme

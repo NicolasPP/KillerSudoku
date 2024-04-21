@@ -5,7 +5,7 @@ from pygame.event import Event
 
 from events import AppEvent
 from region import Region
-from themes import GameTheme
+from themes import AppTheme
 
 
 class GuiComponent:
@@ -25,12 +25,12 @@ class GuiComponent:
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
         pass
 
-    def __init__(self, parent: Region, theme: GameTheme) -> None:
+    def __init__(self, parent: Region, theme: AppTheme) -> None:
         self.parent: Region = parent
-        self._theme: GameTheme = theme
+        self._theme: AppTheme = theme
 
     @property
-    def theme(self) -> GameTheme:
+    def theme(self) -> AppTheme:
         return self._theme
 
     @theme.deleter
@@ -38,6 +38,6 @@ class GuiComponent:
         del self._theme
 
     @theme.setter
-    def theme(self, new_theme: GameTheme) -> None:
+    def theme(self, new_theme: AppTheme) -> None:
         self._theme = new_theme
         self.update_theme()
