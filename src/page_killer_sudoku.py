@@ -64,28 +64,33 @@ class KillerSudoku(Page):
         self._bottom_bar.theme = launch_game.theme
         self._board_display.theme = launch_game.theme
 
-    def _set_selected_val(self, val: int) -> None:
-        for cell in self._board_display.selection.selected:
-
-            if self._bottom_bar.tools.pencil.is_on:
-                self._state.add_pencil_mark(cell.row, cell.col, val)
-
-            else:
-                self._state[cell.row][cell.col] = val
-
-        self._board_display.require_redraw = True
-
     def _handle_digit_press(self) -> None:
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:
             return
 
-        self._set_selected_val(dig.val)
+        for cell in self._board_display.selection.selected:
+
+            if self._bottom_bar.tools.pencil.is_on:
+                self._state.add_pencil_mark(cell.row, cell.col, dig.val)
+
+            else:
+                self._state[cell.row][cell.col] = dig.val
+
+        self._board_display.require_redraw = True
 
     def _handle_eraser_press(self) -> None:
         if not self._bottom_bar.tools.eraser.is_collided(self._bottom_bar.get_collision_offset()):
             return
 
-        self._set_selected_val(0)
+        for cell in self._board_display.selection.selected:
+            cell_val: int = self._state[cell.row][cell.col]
+            if cell_val != 0:
+                self._state[cell.row][cell.col] = 0
+
+            else:
+                self._state.get_pencil_markings(cell.row, cell.col).clear()
+
+        self._board_display.require_redraw = True
 
     def _handle_back_press(self) -> None:
         if not self._top_bar.is_back_collided():

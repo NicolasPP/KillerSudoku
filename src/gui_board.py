@@ -108,6 +108,61 @@ class Selection:
         return selection_sum
 
 
+class PencilMarksDisplay:
+
+    def __init__(self, cell_size: Rect, theme: GameTheme, font_name: str) -> None:
+        self.surface: Surface = Surface(Vector2(cell_size.size) - Vector2((CAGE_PAD + 2) * 2))
+        self.regions: list[Region] = self._create_regions(theme)
+
+        self._font_name: str = font_name
+        self._font_size: int = self._calculate_font_size()
+
+    def redraw(self, theme: GameTheme) -> None:
+        self.regions = self._create_regions(theme)
+        self._font_size = self._calculate_font_size()
+
+    def get_font(self) -> Font:
+        return SysFont(self._font_name, self._font_size)
+
+    def _calculate_font_size(self) -> int:
+        font_size: int = 1
+        bounding_box: Rect = self.regions[0].surface.get_rect()
+        while True:
+            font: Font = SysFont(self._font_name, font_size)
+            size: Vector2 = Vector2(font.size("0"))
+            if size.x > bounding_box.width:
+                return font_size - 1
+
+            if size.y > bounding_box.height:
+                return font_size - 1
+
+            font_size += 1
+
+    def _create_regions(self, theme: GameTheme) -> list[Region]:
+        regions: list[Region] = []
+        prev_placement: Optional[Rect] = None
+        first_placement: Optional[Rect] = None
+        size: Vector2 = Vector2(self.surface.get_size()) // 3
+        for row in range(3):
+            for col in range(3):
+                surface: Surface = Surface(size)
+                surface.fill(theme.background_primary)
+                placement: Rect = surface.get_rect(topleft=(0, 0))
+                if prev_placement is not None and first_placement is not None:
+                    if col == 0:
+                        placement = surface.get_rect(topleft=first_placement.bottomleft)
+                    else:
+                        placement = surface.get_rect(topleft=prev_placement.topright)
+
+                prev_placement = placement
+                if col == 0:
+                    first_placement = placement
+
+                regions.append(Region(self.surface, surface, placement))
+
+        return regions
+
+
 class BoardGui(GuiComponent):
     @override
     def render(self) -> None:
@@ -116,6 +171,7 @@ class BoardGui(GuiComponent):
 
         if self._require_redraw:
             self._clear_cells()
+            self._draw_pencil_marks()
             self._draw_board_vals()
             self._draw_cages()
             self._require_redraw = False
@@ -144,6 +200,8 @@ class BoardGui(GuiComponent):
             cell.region.surface.fill(self._theme.background_primary)
             cell.region.set_hover_color(self._theme.foreground_primary)
 
+        self._pencil_marks.redraw(self._theme)
+
     @override
     def parse_event(self, game_event: Event, events: Queue[AppEvent]) -> None:
         if not self.parent.placement.collidepoint(mouse.get_pos()):
@@ -167,6 +225,8 @@ class BoardGui(GuiComponent):
         self._cells: list[list[Cell]] = []
         self._surface: Surface = self._create_board_surface()
         self._require_redraw: bool = True
+        self._pencil_marks: PencilMarksDisplay = PencilMarksDisplay(self._cells[0][0].region.surface.get_rect(), theme,
+                                                                    get_fonts()[0])
         self.selection: Selection = Selection()
 
     @property
@@ -239,6 +299,26 @@ class BoardGui(GuiComponent):
                 present.add(neighbour)
 
         return present
+
+    def _draw_pencil_marks(self) -> None:
+        for cell in chain.from_iterable(self._cells):
+            self._pencil_marks.surface.fill(self._theme.background_primary)
+
+            if self._state[cell.row][cell.col] != 0:
+                continue
+
+            if not (markings := self._state.get_pencil_markings(cell.row, cell.col)):
+                continue
+
+            for region, mark in zip(self._pencil_marks.regions, markings):
+                val: Surface = self._pencil_marks.get_font().render(str(mark), True,
+                                                                    self._theme.foreground_primary,
+                                                                    self._theme.background_primary)
+                region.surface.blit(val, val.get_rect(center=region.surface.get_rect().center))
+                region.render()
+
+            cell.region.surface.blit(self._pencil_marks.surface,
+                                     self._pencil_marks.surface.get_rect(center=cell.region.surface.get_rect().center))
 
     def _draw_cages(self) -> None:
         font: Font = SysFont(get_fonts()[0], SUM_FONT_SIZE)
