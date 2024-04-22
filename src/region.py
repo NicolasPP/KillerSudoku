@@ -21,7 +21,6 @@ class PartitionDirection(Enum):
 class Region:
     @staticmethod
     def partition(parent: Surface, direction: PartitionDirection, *weights: int) -> list[Region]:
-        # Vertical stack Only
         # Works best when weights divides parents height with no remainder
         if (total_weight := sum(weights)) < len(weights):
             raise Exception("weights cannot be 0 or negative")
