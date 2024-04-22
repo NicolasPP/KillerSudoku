@@ -3,6 +3,7 @@ from enum import auto
 from functools import cache
 from itertools import chain
 from queue import Queue
+from time import time
 from typing import Optional
 from typing import override
 
@@ -23,6 +24,7 @@ from pygame.rect import Rect
 from pygame.surface import Surface
 
 from config.app_config import BOARD_SIZE
+from config.app_config import DOUBLE_CLICK_DELAY
 from config.game_config import CAGE_PAD
 from config.game_config import CELL_PAD
 from config.game_config import SUM_FONT_SIZE
@@ -215,10 +217,18 @@ class BoardGui(GuiComponent):
 
         elif game_event.type == MOUSEBUTTONDOWN:
             if game_event.button == BUTTON_LEFT:
-                if len(self.selection.selected) > 0 and not key.get_pressed()[K_LCTRL]:
-                    self.selection.clear()
 
-                self.selection.selecting = True
+                is_double_click: bool = self._is_double_click()
+                self._select_equal_values()
+
+                if is_double_click:
+                    self._select_equal_values()
+
+                else:
+                    if len(self.selection.selected) > 0 and not key.get_pressed()[K_LCTRL]:
+                        self.selection.clear()
+
+                    self.selection.selecting = True
 
     def __init__(self, parent: Region, theme: AppTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)
@@ -229,6 +239,7 @@ class BoardGui(GuiComponent):
         self._pencil_marks: PencilMarksDisplay = PencilMarksDisplay(self._cells[0][0].region.surface.get_rect(), theme,
                                                                     get_fonts()[0])
         self.selection: Selection = Selection()
+        self._prev_click: Optional[float] = None
 
     @property
     def require_redraw(self) -> bool:
@@ -241,6 +252,33 @@ class BoardGui(GuiComponent):
     @require_redraw.deleter
     def require_redraw(self) -> None:
         del self._require_redraw
+
+    def _is_double_click(self) -> bool:
+        result: bool = False
+        now: float = time()
+        update_prev_click: bool = True
+        if self._prev_click is not None:
+            if now - self._prev_click < DOUBLE_CLICK_DELAY:
+                update_prev_click = False
+                result = True
+                self._prev_click = None
+
+        if update_prev_click:
+            self._prev_click = now
+
+        return result
+
+    def _select_equal_values(self) -> None:
+        if (selected := self.selection.get_single_selection()) is None:
+            return
+
+        if (selected_val := self._state[selected.row][selected.col]) == 0:
+            return
+
+        self.selection.clear()
+        for cell in chain.from_iterable(self._cells):
+            if self._state[cell.row][cell.col] == selected_val:
+                self.selection.add_cell(cell)
 
     def _create_board_surface(self) -> Surface:
         cells: list[list[Cell]] = []

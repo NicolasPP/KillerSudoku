@@ -6,6 +6,7 @@ HOVER_ALPHA: int = 70
 BOARD_SIZE: int = 9
 TITLE: str = "Killer Sudoku"
 PUZZLE_DATA_PATH: str = "data"
+DOUBLE_CLICK_DELAY: float = 0.5
 
 # Assets
 ICONS: str = r"assets\icons"
