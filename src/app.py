@@ -12,6 +12,7 @@ from config.app_config import MAX_PUZZLES
 from delta_time import DeltaTime
 from events import AppEvent
 from events import LaunchGameEvent
+from events import ChangeThemeEvent
 from events import SetPageEvent
 from page import Page
 from page import PageManager
@@ -26,7 +27,6 @@ class KillerSudokuApp:
     def __init__(self) -> None:
 
         self._app_events: Queue[AppEvent] = Queue()
-        self._theme: AppTheme = AppTheme.default()
         self._page_manager: PageManager = PageManager(self._app_events)
         self._delta_time: DeltaTime = DeltaTime()
         self._is_done: bool = False
@@ -36,11 +36,11 @@ class KillerSudokuApp:
         pygame.display.set_mode((APP_WIDTH, APP_HEIGHT))
         AssetManager.load_icons()
 
-        self._page_manager.add_page(MAIN_MENU_PAGE, MainMenu, self._theme)
-        self._page_manager.add_page(KILLER_SUDOKU_PAGE, KillerSudoku, self._theme)
+        self._page_manager.add_page(MAIN_MENU_PAGE, MainMenu, AppTheme.default())
+        self._page_manager.add_page(KILLER_SUDOKU_PAGE, KillerSudoku, AppTheme.default())
         self._page_manager.page = MAIN_MENU_PAGE
 
-        self._page_manager.update_pages_theme(self._theme)
+        self._page_manager.update_pages_theme(AppTheme.default())
 
     def play(self) -> None:
         while not self._is_done:
@@ -76,6 +76,9 @@ class KillerSudokuApp:
                 page: Optional[Page] = self._page_manager.page
                 assert isinstance(page, KillerSudoku)
                 page.process_launch_game_event(app_event)
+
+            elif isinstance(app_event, ChangeThemeEvent):
+                self._page_manager.update_pages_theme(app_event.theme)
 
             else:
                 raise Exception(f"App Event: {app_event.type.name} not recognised")

@@ -4,11 +4,13 @@ from enum import auto
 
 from puzzle_store import Puzzle
 from puzzle_store import PuzzleDifficulty
+from themes import AppTheme
 
 
 class AppEventType(Enum):
     SET_PAGE = auto()
     LAUNCH_GAME = auto()
+    CHANGE_THEME = auto()
 
 
 class AppEvent(ABC):
@@ -30,3 +32,9 @@ class LaunchGameEvent(AppEvent):
         super().__init__(AppEventType.LAUNCH_GAME)
         self.difficulty: PuzzleDifficulty = difficulty
         self.puzzle: Puzzle = puzzle
+
+
+class ChangeThemeEvent(AppEvent):
+    def __init__(self, theme: AppTheme) -> None:
+        super().__init__(AppEventType.CHANGE_THEME)
+        self.theme: AppTheme = theme
