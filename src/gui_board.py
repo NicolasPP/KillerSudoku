@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 from functools import cache
 from itertools import chain
 from queue import Queue
-from time import time
 from typing import Optional
 from typing import override
 
@@ -25,7 +23,6 @@ from pygame.rect import Rect
 from pygame.surface import Surface
 
 from config.app_config import BOARD_SIZE
-from config.app_config import DOUBLE_CLICK_DELAY
 from config.game_config import CAGE_PAD
 from config.game_config import CELL_PAD
 from config.game_config import SUM_FONT_SIZE
@@ -167,26 +164,6 @@ class PencilMarksDisplay:
         return regions
 
 
-@dataclass
-class DoubleClickInfo:
-    _prev_click: Optional[float] = None
-
-    def click(self) -> bool:
-        result: bool = False
-        now: float = time()
-        update: bool = True
-        if self._prev_click is not None:
-            if now - self._prev_click < DOUBLE_CLICK_DELAY:
-                update = False
-                result = True
-                self._prev_click = None
-
-        if update:
-            self._prev_click = now
-
-        return result
-
-
 class BoardGui(GuiComponent):
     @override
     def render(self) -> None:
@@ -238,14 +215,11 @@ class BoardGui(GuiComponent):
 
         elif game_event.type == MOUSEBUTTONDOWN:
             if game_event.button == BUTTON_LEFT:
-                if self._double_click.click():
-                    self._select_equal_values()
+                self._require_redraw = True
+                if len(self.selection.selected) > 0 and not key.get_pressed()[K_LCTRL]:
+                    self.selection.clear()
 
-                else:
-                    if len(self.selection.selected) > 0 and not key.get_pressed()[K_LCTRL]:
-                        self.selection.clear()
-
-                    self.selection.selecting = True
+                self.selection.selecting = True
 
     def __init__(self, parent: Region, theme: AppTheme, state: KillerSudokuState) -> None:
         super().__init__(parent, theme)
@@ -256,7 +230,6 @@ class BoardGui(GuiComponent):
         self._pencil_marks: PencilMarksDisplay = PencilMarksDisplay(self._cells[0][0].region.surface.get_rect(), theme,
                                                                     get_fonts()[0])
         self.selection: Selection = Selection()
-        self._double_click: DoubleClickInfo = DoubleClickInfo()
 
     @property
     def require_redraw(self) -> bool:
@@ -269,18 +242,6 @@ class BoardGui(GuiComponent):
     @require_redraw.deleter
     def require_redraw(self) -> None:
         del self._require_redraw
-
-    def _select_equal_values(self) -> None:
-        if (selected := self.selection.get_single_selection()) is None:
-            return
-
-        if (selected_val := self._state[selected.row][selected.col]) == 0:
-            return
-
-        self.selection.clear()
-        for cell in chain.from_iterable(self._cells):
-            if self._state[cell.row][cell.col] == selected_val:
-                self.selection.add_cell(cell)
 
     def _create_board_surface(self) -> Surface:
         cells: list[list[Cell]] = []
@@ -342,6 +303,16 @@ class BoardGui(GuiComponent):
         return present
 
     def _draw_pencil_marks(self) -> None:
+        def get_font_color(pencil_mark: int, row: int, col: int) -> Color:
+            if not self._state.is_mark_valid(pencil_mark, row, col):
+                return self._theme.invalid
+
+            if (selected := self.selection.get_single_selection()) is not None and \
+                    self._state[selected.row][selected.col] in self._state.get_pencil_markings(row, col):
+                return self._theme.highlight
+
+            return self._theme.foreground
+
         for cell in chain.from_iterable(self._cells):
             self._pencil_marks.surface.fill(self._theme.background)
 
@@ -352,10 +323,8 @@ class BoardGui(GuiComponent):
                 continue
 
             for region, mark in zip(self._pencil_marks.regions, markings):
-                is_mark_valid: bool = self._state.is_mark_valid(mark, cell.row, cell.col)
-                font_color: Color = self._theme.foreground \
-                    if is_mark_valid else self._theme.invalid
-                val: Surface = self._pencil_marks.get_font().render(str(mark), True, font_color,
+                val: Surface = self._pencil_marks.get_font().render(str(mark), True,
+                                                                    get_font_color(mark, cell.row, cell.col),
                                                                     self._theme.background)
                 region.surface.blit(val, val.get_rect(center=region.surface.get_rect().center))
                 region.render()
@@ -364,14 +333,26 @@ class BoardGui(GuiComponent):
                                      self._pencil_marks.surface.get_rect(center=cell.region.surface.get_rect().center))
 
     def _draw_cages(self) -> None:
+        def get_cage_color(total_sum: int, cage_cells: list[tuple[int, int]]) -> Color:
+            if not self._state.is_cage_valid(total_sum, cage_cells):
+                return self._theme.invalid
+
+            if len(self.selection.selected) == 0:
+                return self._theme.foreground
+
+            for selected in self.selection.selected:
+                if (selected.row, selected.col) not in cage_cells:
+                    return self._theme.foreground
+
+            return self._theme.highlight
+
         font: Font = SysFont(get_fonts()[0], SUM_FONT_SIZE)
         for cage_sum, cells in self._state.puzzle.cages:
             present_cells: set[tuple[int, int]] = set(cells)
             sum_row, sum_col = cells[-1]
             sum_cell: Cell = self._cells[sum_row][sum_col]
 
-            is_cage_valid: bool = self._state.is_cage_valid(cage_sum, cells)
-            line_color = self._theme.foreground if is_cage_valid else self._theme.invalid
+            line_color: Color = get_cage_color(cage_sum, cells)
             sum_surface: Surface = font.render(str(cage_sum), True, line_color, self._theme.background)
             for row, col in cells:
                 neighbours: set[Direction] = self._get_present_neighbours(row, col, present_cells)
@@ -523,13 +504,22 @@ class BoardGui(GuiComponent):
             cell.region.surface.fill(self._theme.background)
 
     def _draw_board_vals(self) -> None:
+        def get_font_color(row: int, col: int) -> Color:
+            if not self._state.is_value_valid(row, col):
+                return self._theme.invalid
+
+            if (selected := self.selection.get_single_selection()) is not None and \
+                    self._state[row][col] == self._state[selected.row][selected.col]:
+                return self._theme.highlight
+
+            return self._theme.foreground
+
         font: Font = SysFont(get_fonts()[0], 20)
         for cell in chain.from_iterable(self._cells):
             if (val := self._state[cell.row][cell.col]) == 0:
                 continue
 
-            is_value_valid: bool = self._state.is_value_valid(cell.row, cell.col)
-            line_color = self._theme.foreground if is_value_valid else self._theme.invalid
-            dig: Surface = font.render(str(val), True, line_color, self._theme.background)
+            dig: Surface = font.render(str(val), True, get_font_color(cell.row, cell.col),
+                                       self._theme.background)
 
             cell.region.surface.blit(dig, dig.get_rect(center=cell.region.surface.get_rect().center))
