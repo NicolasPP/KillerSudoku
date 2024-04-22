@@ -29,7 +29,7 @@ class BottomBar(GuiComponent):
 
     @override
     def update_theme(self) -> None:
-        self.parent.surface.fill(self._theme.background_primary)
+        self.parent.surface.fill(self._theme.background)
         self.digits.redraw(self._theme)
         self.tools.redraw(self._theme)
 

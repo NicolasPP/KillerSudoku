@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 from functools import cache
@@ -149,7 +150,7 @@ class PencilMarksDisplay:
         for row in range(3):
             for col in range(3):
                 surface: Surface = Surface(size)
-                surface.fill(theme.background_primary)
+                surface.fill(theme.background)
                 placement: Rect = surface.get_rect(topleft=(0, 0))
                 if prev_placement is not None and first_placement is not None:
                     if col == 0:
@@ -164,6 +165,26 @@ class PencilMarksDisplay:
                 regions.append(Region(self.surface, surface, placement))
 
         return regions
+
+
+@dataclass
+class DoubleClickInfo:
+    _prev_click: Optional[float] = None
+
+    def click(self) -> bool:
+        result: bool = False
+        now: float = time()
+        update: bool = True
+        if self._prev_click is not None:
+            if now - self._prev_click < DOUBLE_CLICK_DELAY:
+                update = False
+                result = True
+                self._prev_click = None
+
+        if update:
+            self._prev_click = now
+
+        return result
 
 
 class BoardGui(GuiComponent):
@@ -197,11 +218,11 @@ class BoardGui(GuiComponent):
 
     @override
     def update_theme(self) -> None:
-        self.parent.surface.fill(self._theme.background_primary)
-        self._surface.fill(self._theme.foreground_primary)
+        self.parent.surface.fill(self._theme.background)
+        self._surface.fill(self._theme.foreground)
         for cell in chain.from_iterable(self._cells):
-            cell.region.surface.fill(self._theme.background_primary)
-            cell.region.set_hover_color(self._theme.foreground_primary)
+            cell.region.surface.fill(self._theme.background)
+            cell.region.set_hover_color(self._theme.foreground)
 
         self._pencil_marks.redraw(self._theme)
 
@@ -217,11 +238,7 @@ class BoardGui(GuiComponent):
 
         elif game_event.type == MOUSEBUTTONDOWN:
             if game_event.button == BUTTON_LEFT:
-
-                is_double_click: bool = self._is_double_click()
-                self._select_equal_values()
-
-                if is_double_click:
+                if self._double_click.click():
                     self._select_equal_values()
 
                 else:
@@ -239,7 +256,7 @@ class BoardGui(GuiComponent):
         self._pencil_marks: PencilMarksDisplay = PencilMarksDisplay(self._cells[0][0].region.surface.get_rect(), theme,
                                                                     get_fonts()[0])
         self.selection: Selection = Selection()
-        self._prev_click: Optional[float] = None
+        self._double_click: DoubleClickInfo = DoubleClickInfo()
 
     @property
     def require_redraw(self) -> bool:
@@ -252,21 +269,6 @@ class BoardGui(GuiComponent):
     @require_redraw.deleter
     def require_redraw(self) -> None:
         del self._require_redraw
-
-    def _is_double_click(self) -> bool:
-        result: bool = False
-        now: float = time()
-        update_prev_click: bool = True
-        if self._prev_click is not None:
-            if now - self._prev_click < DOUBLE_CLICK_DELAY:
-                update_prev_click = False
-                result = True
-                self._prev_click = None
-
-        if update_prev_click:
-            self._prev_click = now
-
-        return result
 
     def _select_equal_values(self) -> None:
         if (selected := self.selection.get_single_selection()) is None:
@@ -341,7 +343,7 @@ class BoardGui(GuiComponent):
 
     def _draw_pencil_marks(self) -> None:
         for cell in chain.from_iterable(self._cells):
-            self._pencil_marks.surface.fill(self._theme.background_primary)
+            self._pencil_marks.surface.fill(self._theme.background)
 
             if self._state[cell.row][cell.col] != 0:
                 continue
@@ -351,10 +353,10 @@ class BoardGui(GuiComponent):
 
             for region, mark in zip(self._pencil_marks.regions, markings):
                 is_mark_valid: bool = self._state.is_mark_valid(mark, cell.row, cell.col)
-                font_color: Color = self._theme.foreground_primary \
-                    if is_mark_valid else self._theme.foreground_secondary
+                font_color: Color = self._theme.foreground \
+                    if is_mark_valid else self._theme.invalid
                 val: Surface = self._pencil_marks.get_font().render(str(mark), True, font_color,
-                                                                    self._theme.background_primary)
+                                                                    self._theme.background)
                 region.surface.blit(val, val.get_rect(center=region.surface.get_rect().center))
                 region.render()
 
@@ -369,8 +371,8 @@ class BoardGui(GuiComponent):
             sum_cell: Cell = self._cells[sum_row][sum_col]
 
             is_cage_valid: bool = self._state.is_cage_valid(cage_sum, cells)
-            line_color = self._theme.foreground_primary if is_cage_valid else self._theme.foreground_secondary
-            sum_surface: Surface = font.render(str(cage_sum), True, line_color, self._theme.background_primary)
+            line_color = self._theme.foreground if is_cage_valid else self._theme.invalid
+            sum_surface: Surface = font.render(str(cage_sum), True, line_color, self._theme.background)
             for row, col in cells:
                 neighbours: set[Direction] = self._get_present_neighbours(row, col, present_cells)
                 self._draw_cage_side(row, col, neighbours, line_color)
@@ -518,7 +520,7 @@ class BoardGui(GuiComponent):
 
     def _clear_cells(self) -> None:
         for cell in chain.from_iterable(self._cells):
-            cell.region.surface.fill(self._theme.background_primary)
+            cell.region.surface.fill(self._theme.background)
 
     def _draw_board_vals(self) -> None:
         font: Font = SysFont(get_fonts()[0], 20)
@@ -527,7 +529,7 @@ class BoardGui(GuiComponent):
                 continue
 
             is_value_valid: bool = self._state.is_value_valid(cell.row, cell.col)
-            line_color = self._theme.foreground_primary if is_value_valid else self._theme.foreground_secondary
-            dig: Surface = font.render(str(val), True, line_color, self._theme.background_primary)
+            line_color = self._theme.foreground if is_value_valid else self._theme.invalid
+            dig: Surface = font.render(str(val), True, line_color, self._theme.background)
 
             cell.region.surface.blit(dig, dig.get_rect(center=cell.region.surface.get_rect().center))

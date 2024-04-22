@@ -40,7 +40,7 @@ class Tools:
         self.parent.render()
 
     def redraw(self, theme: AppTheme) -> None:
-        self.parent.surface.fill(theme.foreground_primary)
+        self.parent.surface.fill(theme.foreground)
         self.eraser.redraw(theme)
         self.pencil.redraw(theme)
         self.undo.redraw(theme)

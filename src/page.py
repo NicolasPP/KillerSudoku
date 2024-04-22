@@ -34,7 +34,7 @@ class Page(ABC):
         self.events: Queue[AppEvent] = events
 
     def display(self) -> None:
-        display.get_surface().fill(self._theme.background_primary)
+        display.get_surface().fill(self._theme.background)
         self.render()
         display.flip()
 

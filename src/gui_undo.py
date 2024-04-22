@@ -16,7 +16,7 @@ class Undo:
         self._icon: Surface = self._get_icon(theme)
 
     def redraw(self, theme: AppTheme) -> None:
-        self.parent.surface.fill(theme.background_primary)
+        self.parent.surface.fill(theme.background)
         self._icon = self._get_icon(theme)
 
     def render(self) -> None:
@@ -24,12 +24,12 @@ class Undo:
 
     def render_hover(self, theme: AppTheme) -> None:
         hover: Surface = Surface(self._icon.get_size())
-        hover.fill(theme.foreground_primary)
+        hover.fill(theme.foreground)
         hover.set_alpha(HOVER_ALPHA)
         self.parent.surface.blit(hover, self._get_pos())
 
     def _get_icon(self, theme: AppTheme) -> Surface:
-        return AssetManager.get_icon(UNDO_ICON, theme.foreground_primary, theme.background_primary,
+        return AssetManager.get_icon(UNDO_ICON, theme.foreground, theme.background,
                                      Vector2(min(self.parent.surface.get_size())))
 
     def _get_pos(self) -> Vector2:

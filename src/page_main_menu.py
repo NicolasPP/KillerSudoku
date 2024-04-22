@@ -42,7 +42,7 @@ class DifficultyComponent:
     def __init__(self, parent: Region, theme: AppTheme) -> None:
         self._parent: Region = parent
         self._cards: list[DifficultyCard] = self._create_cards(theme)
-        self._parent.surface.fill(theme.background_primary)
+        self._parent.surface.fill(theme.background)
 
     def _create_cards(self, theme: AppTheme) -> list[DifficultyCard]:
         font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE // 2)
@@ -51,11 +51,11 @@ class DifficultyComponent:
                                                              1, 1, 1, 1, 1)):
             diff: PuzzleDifficulty = PuzzleDifficulty(diff_index + 1)
 
-            region.surface.fill(theme.background_primary)
-            diff_name: Surface = font.render(diff.name, True, theme.foreground_primary)
+            region.surface.fill(theme.background)
+            diff_name: Surface = font.render(diff.name, True, theme.foreground)
             region.surface.blit(diff_name, diff_name.get_rect(center=region.surface.get_rect().center))
 
-            region.set_hover_color(theme.foreground_primary)
+            region.set_hover_color(theme.foreground)
             cards.append(DifficultyCard(region, diff))
 
         return cards
@@ -105,18 +105,18 @@ class ThemeComponent:
             surf_size: Vector2 = Vector2(min(*region.surface.get_size())) // 5
 
             surface: Surface = Surface(surf_size)
-            surface.fill(theme.foreground_primary)
+            surface.fill(theme.foreground)
             inner: Surface = Surface(surf_size // 1.5)
-            inner.fill(theme.background_primary)
+            inner.fill(theme.background)
             surface.blit(inner, inner.get_rect(center=surface.get_rect().center))
 
             hover: Surface = Surface(surf_size)
             hover.set_alpha(HOVER_ALPHA)
-            hover.fill(theme.foreground_primary)
+            hover.fill(theme.foreground)
 
             card: ThemeCard = ThemeCard(region, surface, hover, theme)
 
-            region.surface.fill(curr_theme.background_primary)
+            region.surface.fill(curr_theme.background)
             region.surface.blit(surface, card.get_surface_pos())
 
             cards.append(card)
@@ -154,8 +154,8 @@ class TitleComponent:
 
     def _draw_title(self, theme: AppTheme) -> None:
         font: Font = SysFont(get_fonts()[0], TITLE_FONT_SIZE)
-        title: Surface = font.render(TITLE, True, theme.foreground_primary, theme.background_primary)
-        self._parent.surface.fill(theme.background_primary)
+        title: Surface = font.render(TITLE, True, theme.foreground, theme.background)
+        self._parent.surface.fill(theme.background)
         self._parent.surface.blit(title, title.get_rect(center=self._parent.surface.get_rect().center))
 
     def redraw(self, theme: AppTheme) -> None:

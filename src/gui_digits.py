@@ -33,8 +33,8 @@ class Digit:
 
     def draw_val(self, theme: AppTheme) -> None:
         font: Font = SysFont(get_fonts()[0], DIGIT_FONT_SIZE)
-        dig: Surface = font.render(str(self._val), True, theme.foreground_primary,
-                                   theme.background_primary)
+        dig: Surface = font.render(str(self._val), True, theme.foreground,
+                                   theme.background)
         self.region.surface.blit(dig, dig.get_rect(center=self.region.surface.get_rect().center))
 
 
@@ -62,11 +62,11 @@ class Digits:
         self.parent.render()
 
     def redraw(self, theme: AppTheme) -> None:
-        self.parent.surface.fill(theme.background_primary)
+        self.parent.surface.fill(theme.background)
         for digit in self.digits:
             digit.theme = theme
-            digit.region.surface.fill(theme.background_primary)
-            digit.region.set_hover_color(theme.foreground_primary)
+            digit.region.surface.fill(theme.background)
+            digit.region.set_hover_color(theme.foreground)
             digit.draw_val(theme)
 
     def get_collided(self, offset: Vector2) -> Optional[Digit]:

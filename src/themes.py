@@ -16,36 +16,36 @@ class AppTheme(NamedTuple):
     def default() -> AppTheme:
         return Themes.themes[LIGHT2_THEME]
 
-    foreground_primary: Color
-    foreground_secondary: Color
-    background_primary: Color
-    background_secondary: Color
+    foreground: Color
+    highlight: Color
+    invalid: Color
+    background: Color
 
 
 class Themes:
     themes: dict[str, AppTheme] = {
         DARK_THEME: AppTheme(
             Color(255, 255, 255),
+            Color(186, 255, 41),
             Color(255, 60, 56),
-            Color(0, 0, 0),
             Color(0, 0, 0),
         ),
         LIGHT_THEME: AppTheme(
             Color(0, 0, 0),
+            Color(186, 255, 41),
             Color(255, 60, 56),
-            Color(255, 255, 255),
             Color(255, 255, 255),
         ),
         DARK2_THEME: AppTheme(
             Color(87, 226, 229),
+            Color(186, 255, 41),
             Color(255, 60, 56),
-            Color(21, 49, 49),
             Color(21, 49, 49),
         ),
         LIGHT2_THEME: AppTheme(
             Color(180, 184, 171),
+            Color(186, 255, 41),
             Color(255, 60, 56),
-            Color(40, 75, 99),
             Color(40, 75, 99),
         )
     }

@@ -29,9 +29,9 @@ class Pencil:
 
     def _get_icons(self, theme: AppTheme) -> PencilIcons:
         pencil_size: Vector2 = Vector2(min(self.parent.surface.get_size()))
-        pencil: Surface = AssetManager.get_icon(PENCIL_ICON, theme.foreground_primary, theme.background_primary,
+        pencil: Surface = AssetManager.get_icon(PENCIL_ICON, theme.foreground, theme.background,
                                                 pencil_size)
-        switch: Surface = AssetManager.get_icon(SWITCH_ICON, theme.foreground_primary, theme.background_primary,
+        switch: Surface = AssetManager.get_icon(SWITCH_ICON, theme.foreground, theme.background,
                                                 pencil_size)
 
         on, off = Region.partition(switch, PartitionDirection.VERTICAL, 1, 1)
@@ -46,7 +46,7 @@ class Pencil:
         self.is_on = not self.is_on
 
     def redraw(self, theme: AppTheme) -> None:
-        self.parent.surface.fill(theme.background_primary)
+        self.parent.surface.fill(theme.background)
         self._icons = self._get_icons(theme)
 
     def render_hover(self, theme: AppTheme) -> None:
@@ -55,7 +55,7 @@ class Pencil:
         status_size.x //= 2
         hover_status: Surface = Surface(status_size)
         for hover in (hover_pencil, hover_status):
-            hover.fill(theme.foreground_primary)
+            hover.fill(theme.foreground)
             hover.set_alpha(HOVER_ALPHA)
 
         pencil_pos: Rect = self._get_pencil_pos()
