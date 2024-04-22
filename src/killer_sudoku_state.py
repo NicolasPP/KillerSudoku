@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from functools import cache
 from itertools import chain
 from queue import LifoQueue
 from typing import Optional
@@ -75,6 +76,40 @@ class KillerSudokuState:
     def get_pencil_markings(self, row: int, col: int) -> list[int]:
         return self._pencil_marks[row][col]
 
+    def is_value_valid(self, row: int, col: int) -> bool:
+        value: int = self._board_vals[row][col]
+        for r, c in get_sudoku_neighbours(row, col):
+            if (r, c) == (row, col):
+                continue
+
+            if self._board_vals[r][c] == value:
+                return False
+
+        return True
+
+    def is_mark_valid(self, mark: int, row: int, col: int) -> bool:
+        assert mark in self._pencil_marks[row][col]
+        for r, c in get_sudoku_neighbours(row, col):
+            if self._board_vals[r][c] == mark:
+                return False
+
+        return True
+
+    def is_cage_valid(self, cage_sum: int, cage_cells: list[tuple[int, int]]) -> bool:
+        current_sum: int = 0
+        is_complete: bool = True
+        for row, col in cage_cells:
+            cell_val: int = self._board_vals[row][col]
+            current_sum += cell_val
+
+            if cell_val == 0:
+                is_complete = False
+
+        if is_complete:
+            return current_sum == cage_sum
+
+        return current_sum < cage_sum
+
     def clear(self) -> None:
         self._board_vals = [[0] * 9 for _ in range(9)]
         for markings in chain.from_iterable(self._pencil_marks):
@@ -124,3 +159,25 @@ class KillerSudokuState:
     @puzzle.deleter
     def puzzle(self) -> None:
         del self._puzzle
+
+
+@cache
+def get_sudoku_neighbours(row: int, col: int) -> list[tuple[int, int]]:
+    neighbours: list[tuple[int, int]] = [(row, col)]
+    row_start: int = (row // 3) * 3
+    col_start: int = (col // 3) * 3
+
+    def add_cell(cell_index: tuple[int, int]) -> None:
+        if cell_index in neighbours:
+            return
+        neighbours.append(cell_index)
+
+    for index in range(9):
+        add_cell((row, index))
+        add_cell((index, col))
+
+    for row_index in range(row_start, row_start + 3):
+        for col_index in range(col_start, col_start + 3):
+            add_cell((row_index, col_index))
+
+    return neighbours

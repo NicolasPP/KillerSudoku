@@ -26,25 +26,25 @@ class Themes:
     themes: dict[str, AppTheme] = {
         DARK_THEME: AppTheme(
             Color(255, 255, 255),
-            Color(255, 255, 255),
+            Color(255, 60, 56),
             Color(0, 0, 0),
             Color(0, 0, 0),
         ),
         LIGHT_THEME: AppTheme(
             Color(0, 0, 0),
-            Color(0, 0, 0),
+            Color(255, 60, 56),
             Color(255, 255, 255),
             Color(255, 255, 255),
         ),
         DARK2_THEME: AppTheme(
             Color(87, 226, 229),
-            Color(87, 226, 229),
+            Color(255, 60, 56),
             Color(21, 49, 49),
             Color(21, 49, 49),
         ),
         LIGHT2_THEME: AppTheme(
             Color(180, 184, 171),
-            Color(180, 184, 171),
+            Color(255, 60, 56),
             Color(40, 75, 99),
             Color(40, 75, 99),
         )

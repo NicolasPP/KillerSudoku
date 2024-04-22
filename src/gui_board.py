@@ -7,6 +7,7 @@ from typing import Optional
 from typing import override
 
 from pygame import BUTTON_LEFT
+from pygame import Color
 from pygame import K_LCTRL
 from pygame import MOUSEBUTTONDOWN
 from pygame import MOUSEBUTTONUP
@@ -311,8 +312,10 @@ class BoardGui(GuiComponent):
                 continue
 
             for region, mark in zip(self._pencil_marks.regions, markings):
-                val: Surface = self._pencil_marks.get_font().render(str(mark), True,
-                                                                    self._theme.foreground_primary,
+                is_mark_valid: bool = self._state.is_mark_valid(mark, cell.row, cell.col)
+                font_color: Color = self._theme.foreground_primary \
+                    if is_mark_valid else self._theme.foreground_secondary
+                val: Surface = self._pencil_marks.get_font().render(str(mark), True, font_color,
                                                                     self._theme.background_primary)
                 region.surface.blit(val, val.get_rect(center=region.surface.get_rect().center))
                 region.render()
@@ -326,16 +329,19 @@ class BoardGui(GuiComponent):
             present_cells: set[tuple[int, int]] = set(cells)
             sum_row, sum_col = cells[-1]
             sum_cell: Cell = self._cells[sum_row][sum_col]
-            sum_surface: Surface = font.render(str(cage_sum), True, self._theme.foreground_primary,
-                                               self._theme.background_primary)
+
+            is_cage_valid: bool = self._state.is_cage_valid(cage_sum, cells)
+            line_color = self._theme.foreground_primary if is_cage_valid else self._theme.foreground_secondary
+            sum_surface: Surface = font.render(str(cage_sum), True, line_color, self._theme.background_primary)
             for row, col in cells:
                 neighbours: set[Direction] = self._get_present_neighbours(row, col, present_cells)
-                self._draw_cage_side(row, col, neighbours)
-                self._draw_cage_corner(row, col, neighbours, cells)
+                self._draw_cage_side(row, col, neighbours, line_color)
+                self._draw_cage_corner(row, col, neighbours, cells, line_color)
 
             sum_cell.region.surface.blit(sum_surface, sum_surface.get_rect(center=(CAGE_PAD, CAGE_PAD)))
 
-    def _draw_cage_corner(self, row: int, col: int, neighbours: set[Direction], cage: list[tuple[int, int]]) -> None:
+    def _draw_cage_corner(self, row: int, col: int, neighbours: set[Direction], cage: list[tuple[int, int]],
+                          line_color: Color) -> None:
         cell_surface: Surface = self._cells[row][col].region.surface
         cell_size: Vector2 = Vector2(cell_surface.get_size())
         cell_w, cell_h = cell_surface.get_size()
@@ -358,33 +364,33 @@ class BoardGui(GuiComponent):
 
         # bottom left corner
         if is_down_present and is_left_present and not is_extra_cell_present(1, -1):
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(CAGE_PAD, cell_h), Vector2(CAGE_PAD, cell_h - CAGE_PAD))
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(CAGE_PAD, cell_h - CAGE_PAD), Vector2(0, cell_h - CAGE_PAD))
 
         # bottom right corner
         if is_down_present and is_right_present and not is_extra_cell_present(1, 1):
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       cell_size - Vector2(CAGE_PAD, 0), cell_size - Vector2(CAGE_PAD))
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       cell_size - Vector2(CAGE_PAD), cell_size - Vector2(0, CAGE_PAD))
 
         # top left corner
         if is_up_present and is_left_present and not is_extra_cell_present(-1, -1):
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(CAGE_PAD, 0), Vector2(CAGE_PAD, CAGE_PAD))
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(CAGE_PAD, CAGE_PAD), Vector2(0, CAGE_PAD))
 
         # top right corner
         if is_up_present and is_right_present and not is_extra_cell_present(-1, 1):
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(cell_w - CAGE_PAD, 0), Vector2(cell_w - CAGE_PAD, CAGE_PAD))
-            draw.line(cell_surface, self._theme.foreground_primary,
+            draw.line(cell_surface, line_color,
                       Vector2(cell_w - CAGE_PAD, CAGE_PAD), Vector2(cell_w, CAGE_PAD))
 
-    def _draw_cage_side(self, row: int, col: int, excluded_directions: set[Direction]) -> None:
+    def _draw_cage_side(self, row: int, col: int, excluded_directions: set[Direction], line_color: Color) -> None:
         cell_surface: Surface = self._cells[row][col].region.surface
         is_left_present: bool = Direction.LEFT in excluded_directions
         is_right_present: bool = Direction.RIGHT in excluded_directions
@@ -409,7 +415,7 @@ class BoardGui(GuiComponent):
                 start = Vector2(0, CAGE_PAD)
                 end = Vector2(cell_surface.get_width() - CAGE_PAD, CAGE_PAD)
 
-            draw.line(cell_surface, self._theme.foreground_primary, start, end)
+            draw.line(cell_surface, line_color, start, end)
 
         if not is_down_present:
             if not is_left_present and not is_right_present:
@@ -428,7 +434,7 @@ class BoardGui(GuiComponent):
                 start = Vector2(0, cell_surface.get_height() - CAGE_PAD)
                 end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-            draw.line(cell_surface, self._theme.foreground_primary, start, end)
+            draw.line(cell_surface, line_color, start, end)
 
         if not is_left_present:
             if not is_down_present and not is_up_present:
@@ -447,7 +453,7 @@ class BoardGui(GuiComponent):
                 start = Vector2(CAGE_PAD, 0)
                 end = Vector2(CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-            draw.line(cell_surface, self._theme.foreground_primary, start, end)
+            draw.line(cell_surface, line_color, start, end)
 
         if not is_right_present:
             if not is_down_present and not is_up_present:
@@ -466,7 +472,7 @@ class BoardGui(GuiComponent):
                 start = Vector2(cell_surface.get_width() - CAGE_PAD, 0)
                 end = Vector2(cell_surface.get_width() - CAGE_PAD, cell_surface.get_height() - CAGE_PAD)
 
-            draw.line(cell_surface, self._theme.foreground_primary, start, end)
+            draw.line(cell_surface, line_color, start, end)
 
     def _get_collision_offset(self) -> Vector2:
         return Vector2(self.parent.placement.topleft) + \
@@ -482,7 +488,8 @@ class BoardGui(GuiComponent):
             if (val := self._state[cell.row][cell.col]) == 0:
                 continue
 
-            dig: Surface = font.render(str(val), True, self._theme.foreground_primary,
-                                       self._theme.background_primary)
+            is_value_valid: bool = self._state.is_value_valid(cell.row, cell.col)
+            line_color = self._theme.foreground_primary if is_value_valid else self._theme.foreground_secondary
+            dig: Surface = font.render(str(val), True, line_color, self._theme.background_primary)
 
             cell.region.surface.blit(dig, dig.get_rect(center=cell.region.surface.get_rect().center))
