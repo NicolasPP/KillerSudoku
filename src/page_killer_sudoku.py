@@ -5,6 +5,7 @@ from typing import override
 from pygame import BUTTON_LEFT
 from pygame import MOUSEBUTTONUP
 from pygame import display
+from pygame import mouse
 from pygame.event import Event
 
 from config.app_config import MAIN_MENU_PAGE
@@ -33,6 +34,7 @@ class KillerSudoku(Page):
                 self._handle_eraser_press()
                 self._handle_back_press()
                 self._handle_undo_press()
+                self._handle_end_selection()
                 self._board_display.require_redraw = True
 
         self._bottom_bar.parse_event(game_event, self.events)
@@ -97,3 +99,9 @@ class KillerSudoku(Page):
 
         self.events.put(SetPageEvent(MAIN_MENU_PAGE))
         self._board_display.selection.clear()
+
+    def _handle_end_selection(self) -> None:
+        if not self._board_display.parent.placement.collidepoint(mouse.get_pos()):
+            return
+
+        self._top_bar.set_selection_sum(self._board_display.selection.get_selection_sum(self._state))
