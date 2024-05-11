@@ -307,9 +307,10 @@ class BoardGui(GuiComponent):
             if not self._state.is_mark_valid(pencil_mark, row, col):
                 return self._theme.invalid
 
-            if (selected := self.selection.get_single_selection()) is not None and \
-                    self._state[selected.row][selected.col] in self._state.get_pencil_markings(row, col):
-                return self._theme.highlight
+            if (selected := self.selection.get_single_selection()) is not None:
+                selected_val: int = self._state[selected.row][selected.col]
+                if selected_val in self._state.get_pencil_markings(row, col) and selected_val == pencil_mark:
+                    return self._theme.highlight
 
             return self._theme.foreground
 
