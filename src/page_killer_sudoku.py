@@ -60,7 +60,7 @@ class KillerSudoku(Page):
         self._state: KillerSudokuState = KillerSudokuState()
         self._difficulty: Optional[PuzzleDifficulty] = None
 
-        top_bar, body, tools = Region.partition(display.get_surface(), PartitionDirection.VERTICAL, 2, 19, 4)
+        top_bar, body, tools = Region.partition(display.get_surface(), PartitionDirection.VERTICAL, 3, 21, 6)
 
         self._top_bar: TopBar = TopBar(top_bar, self._theme)
         self._board_display: BoardGui = BoardGui(body, self._theme, self._state)
