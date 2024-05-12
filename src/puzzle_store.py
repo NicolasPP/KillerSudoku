@@ -1,10 +1,11 @@
+from __future__ import annotations
+
+import json
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
-from pathlib import Path
-from typing import Optional
 
-from config.app_config import PUZZLE_DATA_PATH
+from config.app_config import JSON_PUZZLES
 
 type CellIndex = tuple[int, int]
 type Cage = tuple[int, list[CellIndex]]
@@ -18,7 +19,7 @@ class PuzzleDifficulty(Enum):
     MASTER = auto()
 
 
-@dataclass(slots=True, frozen=True, repr=False)
+@dataclass(slots=True, frozen=True)
 class Puzzle:
     volume: int
     book: int
@@ -35,69 +36,22 @@ class PuzzleStore:
         return PuzzleStore._store.get(difficulty, [])
 
     @staticmethod
-    def load_puzzles(max_puzzles: Optional[int] = None) -> None:
-        if not (difficulty_folder := Path(PUZZLE_DATA_PATH)).is_dir():
-            print(f"path: {difficulty_folder.absolute()} is not a Folder")
-            return
+    def load_puzzles() -> None:
+        with open(JSON_PUZZLES, "r") as file:
+            for puzzle_data in json.load(file):
+                diff: PuzzleDifficulty = PuzzleDifficulty[puzzle_data["diff"]]
+                cages: list[Cage] = []
 
-        for folder in difficulty_folder.iterdir():
-            if not folder.is_dir():
-                continue
+                for cage_sum, cage_cells in puzzle_data["cages"]:
+                    cells: list[tuple[int, int]] = []
+                    for row, col in cage_cells:
+                        cells.append((int(row), int(col)))
 
-            PuzzleStore.load_folder(folder, max_puzzles)
+                    cages.append((int(cage_sum), cells))
 
-    @staticmethod
-    def load_folder(puzzle_folder: Path, max_puzzles: Optional[int]) -> None:
-        if not (diff_val := puzzle_folder.stem[-1]).isdigit():
-            return
-        difficulty: PuzzleDifficulty = PuzzleDifficulty(int(diff_val))
+                puzzle: Puzzle = Puzzle(puzzle_data["volume"], puzzle_data["book"], puzzle_data["id"], diff, cages)
 
-        puzzles: list[Puzzle] = []
-        for puzzle_file in puzzle_folder.iterdir():
-            if puzzle_file.is_dir():
-                continue
+                if diff not in PuzzleStore._store:
+                    PuzzleStore._store[diff] = []
 
-            if max_puzzles is not None and len(puzzles) >= max_puzzles:
-                break
-
-            vol, book, puzzle_id = extract_puzzle_meta_data(puzzle_file)
-            puzzles.append(Puzzle(vol, book, puzzle_id, difficulty, extract_puzzle_cages(puzzle_file)))
-
-        PuzzleStore._store[difficulty] = puzzles
-
-
-def extract_puzzle_meta_data(puzzle_file: Path) -> tuple[int, int, int]:
-    # volume, book, puzzle id
-    vol_str, book_str, puzzle_str = puzzle_file.stem.split("-")
-
-    return int(vol_str.replace("vol", "")), int(book_str.replace("book", "")), int(puzzle_str.replace("puzzle", ""))
-
-
-def extract_puzzle_cages(puzzle_file: Path) -> list[Cage]:
-    cages: list[Cage] = []
-    with open(puzzle_file, "r") as file:
-
-        line: str = file.readline()
-
-        while line:
-            cage_data: list[str] = line.strip().split()[::-1]
-
-            cage_sum: str = cage_data.pop()
-            if not cage_sum.isdigit():
-                break
-            assert int(cage_sum) <= 45
-
-            cages.append(
-                (int(cage_sum), list(map(extract_cell_index, cage_data)))
-            )
-
-            line = file.readline()
-
-        return cages
-
-
-def extract_cell_index(cell_index: str) -> CellIndex:
-    row, col = cell_index
-    assert row.isdigit() and col.isdigit()
-    assert 0 <= int(row) <= 8 and 0 <= int(col) <= 8
-    return int(row), int(col)
+                PuzzleStore._store[diff].append(puzzle)

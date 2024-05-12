@@ -1,11 +1,10 @@
 APP_WIDTH: int = 756
 APP_HEIGHT: int = 850
-MAX_PUZZLES: int = 100
 TITLE_FONT_SIZE: int = 40
 HOVER_ALPHA: int = 70
 BOARD_SIZE: int = 9
 TITLE: str = "Killer Sudoku"
-PUZZLE_DATA_PATH: str = "data"
+JSON_PUZZLES: str = "data/puzzles.json"
 DOUBLE_CLICK_DELAY: float = 0.5
 
 # Assets

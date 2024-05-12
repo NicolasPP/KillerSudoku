@@ -8,11 +8,10 @@ from config.app_config import APP_HEIGHT
 from config.app_config import APP_WIDTH
 from config.app_config import KILLER_SUDOKU_PAGE
 from config.app_config import MAIN_MENU_PAGE
-from config.app_config import MAX_PUZZLES
 from delta_time import DeltaTime
 from events import AppEvent
-from events import LaunchGameEvent
 from events import ChangeThemeEvent
+from events import LaunchGameEvent
 from events import SetPageEvent
 from page import Page
 from page import PageManager
@@ -32,7 +31,7 @@ class KillerSudokuApp:
         self._is_done: bool = False
 
         pygame.init()
-        PuzzleStore.load_puzzles(MAX_PUZZLES)
+        PuzzleStore.load_puzzles()
         pygame.display.set_mode((APP_WIDTH, APP_HEIGHT))
         AssetManager.load_icons()
 
