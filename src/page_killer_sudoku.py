@@ -49,6 +49,7 @@ class KillerSudoku(Page):
     @override
     def update(self, delta_time: float) -> None:
         self._board_display.update(delta_time)
+        self._top_bar.update(delta_time)
 
     @override
     def update_theme(self, theme: AppTheme) -> None:
@@ -70,8 +71,10 @@ class KillerSudoku(Page):
 
     def process_launch_game_event(self, launch_game: LaunchGameEvent) -> None:
         self._state.clear()
+        self._top_bar.reset_timer()
         self._state.puzzle = launch_game.puzzle
         self._difficulty = launch_game.difficulty
+        self._top_bar.begin_timer()
 
     def _handle_digit_press(self) -> None:
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:
