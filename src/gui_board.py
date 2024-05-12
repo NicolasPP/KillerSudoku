@@ -338,14 +338,7 @@ class BoardGui(GuiComponent):
             if not self._state.is_cage_valid(total_sum, cage_cells):
                 return self._theme.invalid
 
-            if len(self.selection.selected) == 0:
-                return self._theme.foreground
-
-            for selected in self.selection.selected:
-                if (selected.row, selected.col) not in cage_cells:
-                    return self._theme.foreground
-
-            return self._theme.highlight
+            return self._theme.foreground
 
         font: Font = SysFont(get_fonts()[0], SUM_FONT_SIZE)
         for cage_sum, cells in self._state.puzzle.cages:
