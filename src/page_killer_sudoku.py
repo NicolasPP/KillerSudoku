@@ -77,8 +77,12 @@ class KillerSudoku(Page):
         if (dig := self._bottom_bar.digits.get_collided(self._bottom_bar.get_collision_offset())) is None:
             return
 
+        if dig.is_complete:
+            return
+
         cells: list[tuple[int, int]] = [(cell.row, cell.col) for cell in self._board_display.selection.selected]
         self._state.process_move(Place(cells, self._state, dig.val, self._bottom_bar.tools.pencil.is_on))
+        self._bottom_bar.digits.update_digits(self._state, self._theme)
 
     def _handle_eraser_press(self) -> None:
         if not self._bottom_bar.tools.eraser.is_collided(self._bottom_bar.get_collision_offset()):
@@ -86,12 +90,14 @@ class KillerSudoku(Page):
 
         cells: list[tuple[int, int]] = [(cell.row, cell.col) for cell in self._board_display.selection.selected]
         self._state.process_move(Delete(cells, self._state))
+        self._bottom_bar.digits.update_digits(self._state, self._theme)
 
     def _handle_undo_press(self) -> None:
         if not self._bottom_bar.tools.undo.is_collided(self._bottom_bar.get_collision_offset()):
             return
 
         self._state.undo_move()
+        self._bottom_bar.digits.update_digits(self._state, self._theme)
 
     def _handle_back_press(self) -> None:
         if not self._top_bar.is_back_collided():
@@ -99,6 +105,7 @@ class KillerSudoku(Page):
 
         self.events.put(SetPageEvent(MAIN_MENU_PAGE))
         self._board_display.selection.clear()
+        self._bottom_bar.digits.reset(self._theme)
 
     def _handle_end_selection(self) -> None:
         if not self._board_display.parent.placement.collidepoint(mouse.get_pos()):

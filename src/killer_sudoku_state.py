@@ -48,6 +48,9 @@ class KillerSudokuState:
     def __getitem__(self, index: int) -> list[int]:
         return self._board_vals[index]
 
+    def get_state(self) -> Board:
+        return self._board_vals
+
     def undo_move(self) -> None:
         if self._moves.empty():
             return

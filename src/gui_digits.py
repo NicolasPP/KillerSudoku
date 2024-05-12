@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import Optional
 
 from pygame.font import Font
@@ -7,6 +8,7 @@ from pygame.math import Vector2
 from pygame.surface import Surface
 
 from config.game_config import DIGIT_FONT_SIZE
+from killer_sudoku_state import KillerSudokuState
 from region import PartitionDirection
 from region import Region
 from themes import AppTheme
@@ -17,6 +19,7 @@ class Digit:
     def __init__(self, val: int, digit_region: Region) -> None:
         self._filled: int = 0
         self._val: int = val
+        self.is_complete: bool = False
         self.region: Region = digit_region
 
     @property
@@ -36,6 +39,17 @@ class Digit:
         dig: Surface = font.render(str(self._val), True, theme.foreground,
                                    theme.background)
         self.region.surface.blit(dig, dig.get_rect(center=self.region.surface.get_rect().center))
+
+    def update_is_complete(self, board_val_freq: dict[int, int], theme: AppTheme) -> None:
+        if (freq := board_val_freq.get(self._val)) is None:
+            return
+
+        self.is_complete = freq >= 9
+        if self.is_complete:
+            self.region.surface.fill(theme.background)
+
+        else:
+            self.draw_val(theme)
 
 
 class Digits:
@@ -57,9 +71,22 @@ class Digits:
             digit.region.render()
 
         if (digit := self.get_collided(offset)) is not None:
-            digit.region.render_hover()
+            if not digit.is_complete:
+                digit.region.render_hover()
 
         self.parent.render()
+
+    def update_digits(self, state: KillerSudokuState, theme: AppTheme) -> None:
+        board_val_freq: dict[int, int] = {dig.val: list(chain.from_iterable(state.get_state())).count(dig.val) for dig
+                                          in self.digits}
+
+        for digit in self.digits:
+            digit.update_is_complete(board_val_freq, theme)
+
+    def reset(self, theme: AppTheme) -> None:
+        for digit in self.digits:
+            digit.is_complete = False
+            digit.draw_val(theme)
 
     def redraw(self, theme: AppTheme) -> None:
         self.parent.surface.fill(theme.background)
