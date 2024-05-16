@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from functools import cache
 from itertools import chain
+from itertools import product
 from queue import LifoQueue
 from typing import Optional
 
@@ -95,6 +96,21 @@ class KillerSudokuState:
         for r, c in get_sudoku_neighbours(row, col):
             if self._board_vals[r][c] == mark:
                 return False
+
+        return True
+
+    def is_puzzle_solved(self) -> bool:
+        if list(chain.from_iterable(self._board_vals)).count(0) >= 1:
+            return False
+
+        for cage in self._puzzle.cages:
+            if not self.is_cage_valid(*cage):
+                return False
+
+        for row, col in product(range(9), range(9)):
+            for n_row, n_col in get_sudoku_neighbours(row, col):
+                if self._board_vals[n_row][n_col] == self._board_vals[row][col]:
+                    return False
 
         return True
 

@@ -7,7 +7,10 @@ from pygame import MOUSEBUTTONUP
 from pygame import display
 from pygame import mouse
 from pygame.event import Event
+from pygame.math import Vector2
+from pygame.surface import Surface
 
+from config.app_config import HOVER_ALPHA
 from config.app_config import MAIN_MENU_PAGE
 from events import AppEvent
 from events import LaunchGameEvent
@@ -25,9 +28,29 @@ from region import Region
 from themes import AppTheme
 
 
+class GameOverMenu:
+
+    def __init__(self, parent: Surface, theme: AppTheme) -> None:
+        self._parent: Surface = parent
+        self._theme: AppTheme = theme
+        self._menu_area: Surface = self._create_menu_area()
+
+    def _create_menu_area(self) -> Surface:
+        surface: Surface = Surface(Vector2(self._parent.get_size()) * 0.8)
+        surface.fill(self._theme.foreground)
+        surface.set_alpha(int(HOVER_ALPHA * 1.5))
+        return surface
+
+    def render(self) -> None:
+        self._parent.blit(self._menu_area, self._menu_area.get_rect(center=self._parent.get_rect().center))
+
+
 class KillerSudoku(Page):
     @override
     def parse_event(self, game_event: Event) -> None:
+        if self._game_over:
+            return
+
         if game_event.type == MOUSEBUTTONUP:
             if game_event.button == BUTTON_LEFT:
                 self._handle_digit_press()
@@ -35,6 +58,7 @@ class KillerSudoku(Page):
                 self._handle_back_press()
                 self._handle_undo_press()
                 self._handle_end_selection()
+                self._handle_game_over()
                 self._board_display.require_redraw = True
 
         self._bottom_bar.parse_event(game_event, self.events)
@@ -45,6 +69,9 @@ class KillerSudoku(Page):
         self._top_bar.render()
         self._board_display.render()
         self._bottom_bar.render()
+
+        if self._game_over:
+            self._game_over_menu.render()
 
     @override
     def update(self, delta_time: float) -> None:
@@ -68,6 +95,8 @@ class KillerSudoku(Page):
         self._top_bar: TopBar = TopBar(top_bar, self._theme)
         self._board_display: BoardGui = BoardGui(body, self._theme, self._state)
         self._bottom_bar: BottomBar = BottomBar(tools, self._theme)
+        self._game_over_menu: GameOverMenu = GameOverMenu(display.get_surface(), self._theme)
+        self._game_over: bool = False
 
     def process_launch_game_event(self, launch_game: LaunchGameEvent) -> None:
         self._state.clear()
@@ -115,3 +144,8 @@ class KillerSudoku(Page):
             return
 
         self._top_bar.set_selection_sum(self._board_display.selection.get_selection_sum(self._state))
+
+    def _handle_game_over(self) -> None:
+        if self._state.is_puzzle_solved():
+            self._game_over = True
+            self._top_bar.stop_timer()

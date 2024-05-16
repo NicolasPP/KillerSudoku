@@ -86,6 +86,9 @@ class TopBar(GuiComponent):
     def begin_timer(self) -> None:
         self._timer.enabled = True
 
+    def stop_timer(self) -> None:
+        self._timer.enabled = False
+
     def reset_timer(self) -> None:
         self._timer.reset()
 
